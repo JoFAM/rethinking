@@ -13,6 +13,8 @@
 #' @param orig The variable on original scale. Use this when variable was standardized
 #' @param factor Factor the original variable was multiplied by by to get rescaled variable. Use this when rescaling by a reference value, for example dividing by maximum value.
 #' 
+#' @return The numeric locations on the axis scale (see \code{\link[graphics]{axis}}). This function is usually invoked for its side effect, which is to add an axis to an already existing plot.
+#' 
 #' @examples 
 #' sppnames <- c( "afarensis","africanus","habilis","boisei",
 #'                "rudolfensis","ergaster","sapiens")

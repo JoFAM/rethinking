@@ -7,13 +7,16 @@
 axis_unscale(side = 1, at, orig, factor, ...)
 }
 \arguments{
-\item{side}{side for axis. 1 is bottom, 2 is left see \code{\link[graphics]{axis}}}
+\item{side}{side for axis. 1 is bottom, 2 is left. See \code{\link[graphics]{axis}} for more information.}
 
-\item{at}{Locations of tick marks, in original scale values}
+\item{at}{Locations of tick marks, in original scale values. See \code{\link[graphics]{axis}} for more information.}
 
 \item{orig}{The variable on original scale. Use this when variable was standardized}
 
 \item{factor}{Factor the original variable was multiplied by by to get rescaled variable. Use this when rescaling by a reference value, for example dividing by maximum value.}
+}
+\value{
+The numeric locations on the axis scale (see \code{\link[graphics]{axis}}). This function is usually invoked for its side effect, which is to add an axis to an already existing plot.
 }
 \description{
 When plotting a standardized or rescaled variable, this function draws the axis units on the original scale.
