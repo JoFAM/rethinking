@@ -1,13 +1,5 @@
 # chapter 7
 
-axis_unscale <- function( side=1 , at , orig , factor , ... ) {
-    if ( missing(orig) )
-        atx <- at / factor
-    else
-        atx <- ( at - mean(orig) ) / sd(orig)
-    axis( side , at=atx , labels=at , ... )
-}
-
 brain_plot <- function( fit , atx=c(35,47,60) , aty=c(450,900,1300) , xlim , ylim , npts=100 ) {
     R2 <- R2_is_bad(fit)
     if ( is.nan(R2) ) R2 <- 1
