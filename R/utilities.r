@@ -2,8 +2,6 @@
 
 # various utility functions
 
-
-
 # set help to html
 htmlhelp <- function() options(help_type="html")
 
@@ -14,9 +12,16 @@ setcran <- function(themirror="https://cloud.r-project.org/") options(repos=stru
 choose.csv <- function( ... ) read.csv( file=file.choose() , ... )
 
 # bound a list of real values on either side
+# Speedup using indices as opposed to ifelse().
 fclip <- function( x , xmin=NULL , xmax=NULL ) {
-    if ( !is.null(xmin) ) x <- ifelse( x < xmin , xmin , x )
-    if ( !is.null(xmax) ) x <- ifelse( x > xmax , xmax , x )
+    if ( !is.null(xmin) ){
+        id <- which(x < xmin)
+        x[id] <- xmin
+    } 
+    if ( !is.null(xmax) ){
+        id <- which(x > xmax)
+        x[id] <- xmax
+    }
     x
 }
 
