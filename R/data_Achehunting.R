@@ -1,0 +1,22 @@
+#' Human forager hunting returns data
+#' 
+#' This dataset contains the hunting returns of individual Ache men, 1981 to 2007. 
+#' 
+#' @format A data frame with 14364 observations of the following 8 variables:
+#' 
+#'   \describe{
+#'     \item{month}{Month of record}
+#'     \item{day}{Day of record}
+#'     \item{year}{Year of record}
+#'     \item{id}{Identifier of individual man}
+#'     \item{age}{Man's age at time of record}
+#'     \item{kg.meat}{Kilograms of meat returned from hunt}
+#'     \item{hours}{Duration in hours of hunting trip}
+#'     \item{datatype}{1 if duration of trip known, 3 otherwise}
+#'   }
+#' 
+#' @references Hill and Kintigh, 2009. Current Anthropology 50:369-377.
+#' @name Achehunting
+#' @docType data
+#' @keywords data
+NULL

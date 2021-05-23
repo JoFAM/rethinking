@@ -14,3 +14,4 @@ Depends: R (>= 3.5.0), rstan (>= 2.10.0), parallel
 Suggests: testthat, dagitty, cmdstanr, posterior
 Description: Utilities for fitting and comparing models
 License: GPL (>= 3)
+RoxygenNote: 7.1.1
