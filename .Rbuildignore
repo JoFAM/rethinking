@@ -1,2 +1,7 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+NOTBUILD_lookup.R
+ERRATA.md
+book_code_boxes.txt
+book_code_boxes_ed1.txt
+hex_stickers

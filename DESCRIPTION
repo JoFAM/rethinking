@@ -11,7 +11,13 @@ Authors@R: c(person("Richard","McElreath",
                    role = c("ctb")))
 Imports: coda, MASS, mvtnorm, loo, shape, methods, stats, graphics
 Depends: R (>= 3.5.0), rstan (>= 2.10.0), parallel
-Suggests: testthat, dagitty, cmdstanr, posterior
-Description: Utilities for fitting and comparing models
+Suggests: 
+    testthat (>= 3.0.0),
+    dagitty,
+    cmdstanr,
+    posterior
+Description: Utilities for fitting and comparing models. It contains
+    the functions used in the book Statistical Rethinking, and 
+    implements a useful framework for teaching Bayesian statistics.
 License: GPL (>= 3)
 RoxygenNote: 7.1.1
