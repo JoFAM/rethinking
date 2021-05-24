@@ -1,66 +1,48 @@
-# coeftab
-
-# coeftab class definition and show method
-setClass( "coeftab" , slots=c( coefs="matrix" , se="matrix" , nobs="numeric" , AIC="numeric" , digits="numeric" , width="numeric" ) )
-
-coeftab_show <- function( object ) {
-    result <- object@coefs
-    if ( !is.null(object@nobs) ) {
-        result <- rbind( result , object@nobs )
-        rownames(result)[ nrow(result) ] <- "nobs"
-    }
-    coefs <- rrformat( result , digits=object@digits , width=object@width )
-    print( coefs , quote=FALSE , justify="right" )
-}
-setMethod( "show" , "coeftab" , function(object) coeftab_show(object) )
-
-coeftab_plot <- function( x , y , pars , col.ci="black" , by.model=FALSE , prob=0.95 , xlab="Value" , ... ) {
-    x.orig <- x
-    xse <- x@se
-    x <- x@coefs
-    if ( !missing(pars) ) {
-        x <- x[pars,]
-        xse <- xse[pars,]
-    }
-    if ( !by.model ) {
-        xse <- t(xse)
-        x <- t(x)
-    }
-
-    z <- qnorm( 1-(1-prob)/2 )
-    
-    left <- x
-    right <- x
-    for ( k in 1:nrow(x) ) {
-        for ( m in 1:ncol(x) ) {
-            ci <- x[k,m] + c(-1,1)*z*xse[k,m]
-            left[k,m] <- ci[1]
-            right[k,m] <- ci[2]
-        }
-    }
-
-    llim <- min(left,na.rm=TRUE)
-    rlim <- max(right,na.rm=TRUE)
-    dotchart( x , xlab=xlab , xlim=c(llim,rlim) , ... )
-    
-    for ( k in 1:nrow(x) ) {
-        for ( m in 1:ncol(x) ) {
-            if ( !is.na(left[k,m]) ) {
-                # to compute y position:
-                # coefs in groups by model
-                # groups have nrow(x)+1 lines
-                # empty line between each group
-                kn <- nrow(x)
-                ytop <- ncol(x)*(kn+2)-1
-                ypos <- ytop - (m-1)*(kn+2) - (kn-k+1)
-                lines( c(left[k,m],right[k,m]) , c(ypos,ypos) , lwd=2 , col=col.ci )
-            }
-        }
-    }
-    abline( v=0 , lty=1 , col=col.alpha("black",0.15) )
-}
-setMethod( "plot" , "coeftab" , function(x,y,...) coeftab_plot(x,y,...) )
-
+#' Coefficient tables
+#' 
+#' Returns a table of model coefficients in rows and models in columns. This can be used to compare estimates across models.
+#' 
+#' @param ... a series of fit models, separated by commas
+#' @param se if \code{TRUE}, includes standard errors in the table
+#' @param se.inside if \code{TRUE} print standard errors in the same cell as estimates.
+#' @param nobs if \code{TRUE}, print number of observations for each model.
+#' @param digits Number of digits to round numbers to
+#' @param rotate if \code{TRUE}, rows are models and columns are coefficients.
+#' 
+#' @return an object of class \code{coeftab}
+#' 
+#' @examples 
+#' 
+#' data(WaffleDivorce)
+#' d <- WaffleDivorce
+#'
+#' # standardize variables
+#' d$D <- standardize( d$Divorce )
+#' d$M <- standardize( d$Marriage )
+#' d$A <- standardize( d$MedianAgeMarriage )
+#' 
+#' m5.1 <- quap(
+#'     alist(
+#'         D ~ dnorm( mu , sigma ) ,
+#'         mu <- a + bA * A ,
+#'         a ~ dnorm( 0 , 0.2 ) ,
+#'         bA ~ dnorm( 0 , 0.5 ) ,
+#'         sigma ~ dexp( 1 )
+#'     ) , data = d )
+#' 
+#' m5.2 <- quap(
+#' alist(
+#'     D ~ dnorm( mu , sigma ) ,
+#'     mu <- a + bM * M ,
+#'     a ~ dnorm( 0 , 0.2 ) ,
+#'     bM ~ dnorm( 0 , 0.5 ) ,
+#'     sigma ~ dexp( 1 )
+#' ) , data = d )
+#'
+#' coeftab(m5.1,m5.2) 
+#' 
+#' @name coeftab
+#' @export
 coeftab <- function( ... , se=FALSE , se.inside=FALSE , nobs=TRUE , digits=2 , width=7 , rotate=FALSE ) {
     
     # se=TRUE outputs standard errors
