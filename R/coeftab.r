@@ -22,7 +22,7 @@ coeftab_plot <- function( x , y , pars , col.ci="black" , by.model=FALSE , prob=
         x <- x[pars,]
         xse <- xse[pars,]
     }
-    if ( by.model==FALSE ) {
+    if ( !by.model ) {
         xse <- t(xse)
         x <- t(x)
     }
@@ -66,7 +66,7 @@ coeftab <- function( ... , se=FALSE , se.inside=FALSE , nobs=TRUE , digits=2 , w
     # se=TRUE outputs standard errors
     # se.inside=TRUE prints standard errors in parentheses in same column as estimates
     
-    if ( se.inside==TRUE ) se <- TRUE
+    if ( se.inside ) se <- TRUE
     
     # retrieve list of models
     L <- list(...)
@@ -84,7 +84,7 @@ coeftab <- function( ... , se=FALSE , se.inside=FALSE , nobs=TRUE , digits=2 , w
         param.names <- unique( c( param.names , c.names ) )
     }
     # columns for standard errors
-    if ( se==TRUE && se.inside==FALSE ) {
+    if ( se && !se.inside ) {
         for ( i in 1:length(L) ) {
             kse.names <- paste( names( xcoef( L[[i]] ) ) , ".se" , sep="" )
             param.names <- unique( c( param.names , kse.names ) )
@@ -108,12 +108,12 @@ coeftab <- function( ... , se=FALSE , se.inside=FALSE , nobs=TRUE , digits=2 , w
         }
     }
     # insert standard errors
-    if ( se==TRUE ) {
+    if ( se ) {
         for ( i in 1:length(L) ) {
             kse <- xse( L[[i]] )
             names(kse) <- names( xcoef( L[[i]] ) )
             for ( j in 1:length(kse) ) {
-                if ( se.inside==FALSE )
+                if ( !se.inside )
                     # own column
                     d[i,][ paste(names(kse)[j],".se",sep="") ] <- as.numeric( round(kse[j],digits) )
                 else
@@ -127,7 +127,7 @@ coeftab <- function( ... , se=FALSE , se.inside=FALSE , nobs=TRUE , digits=2 , w
     rownames(d) <- mnames
     
     # formatting for parenthetical standard errors
-    if ( se.inside==TRUE && se==TRUE ) {
+    if ( se.inside && se ) {
         comment(d) <- "Values in parentheses are quadratic estimate standard errors."
         colnames(d) <- paste( colnames(d) , "(se)" )
         for ( i in 1:nrow(d) ) {
@@ -138,14 +138,14 @@ coeftab <- function( ... , se=FALSE , se.inside=FALSE , nobs=TRUE , digits=2 , w
     }
     
     # add nobs
-    if ( nobs==TRUE ) {
+    if ( nobs ) {
         nobs <- sapply( L , xnobs )
     } else {
         nobs <- 0
     }
     
     # return table
-    if ( rotate==FALSE ) {
+    if ( !rotate ) {
         d <- t(d) # models along top is default
         dse <- t(dse)
     }

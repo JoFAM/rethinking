@@ -45,7 +45,7 @@ plp <- function( mapfit , prob=0.9 , xlim , postcol="black" , priorcol="darkgray
     
     # if map fit, use quadratic approximation to get posterior quantiles
     post <- priors
-    if ( is_m2s==FALSE ) {
+    if ( !is_m2s ) {
         for ( i in 1:length(post) ) {
             par <- names(post)[i]
             post[[par]][2] <- coef(mapfit)[par]

@@ -44,20 +44,20 @@ sim_train_test <- function (N = 20, k = 3, rho = c(0.15, -0.4), b_sigma = 100, W
     dev.test <- (-2)*sum(lppd(m,data=d_test))
     #dev.test <- sum(dnorm(X.test[, 1], mm.test %*% coef(m), 1, TRUE))
     result <- c(dev.train, dev.test)
-    if (WAIC == TRUE) {
+    if (WAIC ) {
         wx <- WAIC(m)
         result <- c( result , wx , abs(wx-dev.test) )
     }
-    if (LOOIC == TRUE) {
+    if (LOOIC ) {
         lx <- LOO(m)
         result <- c( result , lx , abs(lx-dev.test) )
     }
-    if (LOOCV == TRUE) {
+    if (LOOCV ) {
         # compute explicit leave-one-out cross-validation - expensive
         cvx <- (-2)*cv_quap( m , start=start.list , cores=cv.cores )
         result <- c( result , cvx , abs(cvx-dev.test) )
     }
-    if ( return_model==TRUE ) {
+    if ( return_model ) {
         result <- list( model=m , result=result )
     }
     return(result)
@@ -106,8 +106,8 @@ sim.train.test <- function( N=20 , k=3 , rho=c(0.15,-0.4) , b_sigma=100 , DIC=FA
     # result
     result <- c( dev.train , dev.test )
     # DIC and WAIC
-    if ( DIC==TRUE ) result <- c( result , as.numeric(DIC(m)) )
-    if ( WAIC==TRUE ) {
+    if ( DIC ) result <- c( result , as.numeric(DIC(m)) )
+    if ( WAIC ) {
         n_samples <- 1e3
         l <- link(m,n=n_samples,refresh=0)
         lppd <- 0
@@ -119,14 +119,14 @@ sim.train.test <- function( N=20 , k=3 , rho=c(0.15,-0.4) , b_sigma=100 , DIC=FA
         }
         result <- c( result , -2*(lppd-pD) )
     }
-    if ( devbar==TRUE ) {
+    if ( devbar ) {
         post <- extract.samples( m , n=1e3 )
         dev <- sapply( 1:nrow(post) , function(i) 
             (-2)*sum( dnorm( X.train[,1] , mm.train %*% as.numeric(post[i,]) , 1 , TRUE ) )
         )
         result <- c( result , mean(dev) )
     }
-    if ( devbarout==TRUE ) {
+    if ( devbarout ) {
         post <- extract.samples( m , n=1e3 )
         dev <- sapply( 1:nrow(post) , function(i) 
             (-2)*sum( dnorm( X.test[,1] , mm.test %*% as.numeric(post[i,]) , 1 , TRUE ) )

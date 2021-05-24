@@ -145,7 +145,7 @@ function( fit , data , n=1000 , post , refresh=0.1 , replace=list() , flatten=TR
                     data[[the_idx]] <- rep( 1 , the_dims )
                     do_fill <- TRUE
                 }#==0
-                if ( do_fill==TRUE ) {
+                if ( do_fill ) {
                     # now replace the effects with zeros
                     for ( j in 1:length(the_effects) ) {
                         the_dims <- dim(post[[ the_effects[[j]] ]])
@@ -170,7 +170,7 @@ function( fit , data , n=1000 , post , refresh=0.1 , replace=list() , flatten=TR
     rhs <- list()
     for ( k in 1:n_lm ) {
         # ready linear model code
-        if ( f_do_lm==TRUE ) {
+        if ( f_do_lm ) {
             rhs0 <- fit@formula_parsed$lm[[k]]$RHS
             rhs0 <- gsub( "[i]" , "" , rhs0 , fixed=TRUE )
         } else {
@@ -293,7 +293,7 @@ function( fit , data , n=1000 , post , refresh=0.1 , replace=list() , flatten=TR
     
     if ( refresh>0 ) cat("\n")
     
-    if ( flatten==TRUE )
+    if ( flatten )
         if ( length(lm_out)==1 ) lm_out <- lm_out[[1]]
     
     return( lm_out )

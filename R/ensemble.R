@@ -34,14 +34,14 @@ ensemble <- function( ... , data , n=1e3 , func=WAIC , weights , refresh=0 , rep
     link.list <- list("empty")
     sim.list <- list("empty")
     if ( missing(data) ) {
-        if ( do_link==TRUE )
+        if ( do_link )
             link.list <- lapply( L , function(m) link(m , n=n , refresh=refresh , replace=replace ) )
-        if ( do_sim==TRUE )
+        if ( do_sim )
             sim.list <- lapply( L , function(m) sim(m , n=n , refresh=refresh , replace=replace ) )
     } else {
-        if ( do_link==TRUE )
+        if ( do_link )
             link.list <- lapply( L , function(m) link(m , data=data , n=n , refresh=refresh , replace=replace ) )
-        if ( do_sim==TRUE )
+        if ( do_sim )
             sim.list <- lapply( L , function(m) sim(m , data=data , n=n , refresh=refresh , replace=replace ) )
     }
     #print(str(sim.list))
@@ -64,9 +64,9 @@ ensemble <- function( ... , data , n=1e3 , func=WAIC , weights , refresh=0 , rep
     for ( i in 1:length(idx) ) {
         if ( idx[i]>0 ) {
             idxrange <- idx_start[i]:idx_end[i]
-            if ( do_link==TRUE )
+            if ( do_link )
                 link_out[idxrange,] <- link.list[[i]][idxrange,]
-            if ( do_sim==TRUE )
+            if ( do_sim )
                 sim_out[idxrange,] <- sim.list[[i]][idxrange,]
         }
     }

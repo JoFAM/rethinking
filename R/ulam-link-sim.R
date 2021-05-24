@@ -46,7 +46,7 @@ link_ulam <- function( fit , data , post , flatten=TRUE , symbols , ... ) {
         if ( !(names( fit@formula_parsed$link_funcs )[j] %in% symbols) ) next
 
         # get number of cases for this symbol
-        if ( use_orig_data==TRUE )
+        if ( use_orig_data )
             n_cases <- fit@formula_parsed$link_funcs[[ j ]]$N
         else
             # guess from length of data
@@ -94,7 +94,7 @@ link_ulam <- function( fit , data , post , flatten=TRUE , symbols , ... ) {
 
     n_links <- length(symbols)
 
-    if ( flatten==TRUE && n_links==1 ) out <- out[[1]]
+    if ( flatten && n_links==1 ) out <- out[[1]]
 
     return(out)
 }
@@ -255,7 +255,7 @@ sim_ulam_new <- function( fit , data , post , vars , variable , n=1000 , replace
         vars <- as.character(lik[[2]])
     } else {
         # vars listed
-        if ( debug==TRUE ) print(vars)
+        if ( debug ) print(vars)
     }
 
     # loop over vars

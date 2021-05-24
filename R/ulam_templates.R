@@ -30,10 +30,10 @@ ulam_dists <- list(
                 if ( is.null(max_index) ) max_index <- length( data[[ left[j] ]] )
 
                 # outcome var and distribution name
-                if ( as_log_lik==FALSE ) {
-                    if ( vectorized==FALSE ) {
+                if ( !as_log_lik ) {
+                    if ( !vectorized ) {
                         out <- concat( out , indent , "for ( i in 1:" , max_index , " ) " )
-                        if ( do_iff == TRUE )
+                        if ( do_iff )
                             out <- concat( out , "\n" , inden(2) , "if ( " , deparse(iff_out) , " ) " )
                         out <- concat( out , left[j] , "[i] ~ " , dist_name , "( " )
                         sym_suffix <- "[i]"
@@ -42,10 +42,10 @@ ulam_dists <- list(
                     }
                 } 
                 # outcome as log_like calc in gq block
-                if ( as_log_lik==TRUE ){
+                if ( as_log_lik ){
                     # log_lik expressions never vectorized, because vectorized distributions return a sum of log_likelihoods, and we need individual terms
                     out <- concat( out , "    " , "for ( i in 1:" , max_index , " ) " )
-                    if ( do_iff == TRUE )
+                    if ( do_iff  )
                         out <- concat( out , "\n" , inden(2) , "if ( " , deparse(iff_out) , " ) " )
                     out <- concat( out , "log_lik[i] = " , dist_name , "_" , suffix , "( " , left[j] , "[i] | " )
                     sym_suffix <- "[i]"
@@ -55,9 +55,9 @@ ulam_dists <- list(
                 if ( as_log_lik=="reduce" ){
                     # for reduce_sum
                     # could be vectorized or not
-                    if ( vectorized==TRUE ) {
+                    if ( vectorized ) {
                         out <- concat( out , "    " , "return " )
-                        if ( do_iff == TRUE )
+                        if ( do_iff  )
                             out <- concat( out , "\n" , inden(2) , "if ( " , deparse(iff_out) , " ) " )
                         out <- concat( out , dist_name , "_" , suffix , "( " , left[j] , " | " )
                         sym_suffix <- "[start:end]"
@@ -80,16 +80,16 @@ ulam_dists <- list(
                     use_sym_suffix <- sym_suffix
                     # parameters are not usually indexed [i] in non-vectorized forms
                     # but data and locals usually are
-                    if ( vectorized==FALSE || as_log_lik==TRUE ) {
+                    if ( !vectorized || as_log_lik ) {
                         if ( !is.null( symbols[[ right[k] ]] ) ) {
                             # for constants, parameters, and scalar locals, don't add [i]
                             if ( symbols[[ right[k] ]]$type=="par" ) use_sym_suffix <- ""
                             if ( symbols[[ right[k] ]]$type=="local" ) {
-                                if ( reduce_context==TRUE & vectorized==FALSE )
+                                if ( reduce_context && !vectorized )
                                     # need to index linear model symbol
                                     use_sym_suffix <- "[i]"
                                 if ( !is.null(symbols[[ right[k] ]]$dims) ) {
-                                    if ( class(symbols[[ right[k] ]]$dims)=="character" | (reduce_context==TRUE & vectorized==TRUE ) )
+                                    if ( class(symbols[[ right[k] ]]$dims)=="character" | (reduce_context & vectorized ) )
                                         use_sym_suffix <- ""
                                     else {
                                         # should be a list
@@ -112,7 +112,7 @@ ulam_dists <- list(
                     else
                         out <- concat( out , right[k] , use_sym_suffix , " , " )
                 }#k
-                if ( reduce_context==TRUE & vectorized==FALSE ) {
+                if ( reduce_context && !vectorized ) {
                     # need to close up lp loop context
                     out <- concat( out , inden(1) , "return lp;}\n" )
                 }
@@ -445,8 +445,8 @@ ulam_dists <- list(
             if ( class(l1dims) != "name" ) {
                 if ( l1dims[[1]]=="matrix" ) out_mat <- TRUE
             }
-            if ( flag_data_outcome==TRUE || out_mat==TRUE ) {
-                if ( out_mat==TRUE ) {
+            if ( flag_data_outcome || out_mat ) {
+                if ( out_mat ) {
                     N_out <- symbols[[ left[1] ]]$dims[[2]]
                     out_var <- concat( "for ( i in 1:" , N_out , " ) " , out_var , "[i,:]" )
                 }
@@ -454,7 +454,7 @@ ulam_dists <- list(
             MU_var <- "MU"
             if ( length(MU)==1 ) MU_var <- MU[1]
 
-            if ( as_log_lik==FALSE ) {
+            if ( !as_log_lik ) {
 
                 out <- concat( out , indent , out_var , " ~ multi_normal( " , MU_var , " , " , SIGMA , " );\n" )
 
@@ -681,8 +681,8 @@ ulam_dists <- list(
             if ( class(l1dims) != "name" ) {
                 if ( l1dims[[1]]=="matrix" ) out_mat <- TRUE
             }
-            if ( flag_data_outcome==TRUE || out_mat==TRUE ) {
-                if ( out_mat==TRUE ) {
+            if ( flag_data_outcome || out_mat ) {
+                if ( out_mat ) {
                     N_out <- symbols[[ left[1] ]]$dims[[2]]
                     out_var <- concat( "for ( i in 1:" , N_out , " ) " , out_var , "[i,:]" )
                 }
@@ -690,7 +690,7 @@ ulam_dists <- list(
             MU_var <- "MU"
             if ( length(MU)==1 ) MU_var <- MU[1]
 
-            if ( as_log_lik==FALSE ) {
+            if ( !as_log_lik ) {
 
                 out <- concat( out , indent , out_var , " ~ multi_normal_cholesky( " , MU_var , " , " , SIGMA , " );\n" )
 
@@ -1026,7 +1026,7 @@ ulam_dists <- list(
             }
 
             out_head <- "target += "
-            if ( as_log_lik==TRUE ) out_head <- "log_lik[i] = "
+            if ( as_log_lik ) out_head <- "log_lik[i] = "
 
             out <- concat( out , indent , "for ( i in 1:" , length(data[[ left ]]) , " ) {\n" )
 
@@ -1131,15 +1131,15 @@ ulam_dists <- list(
                 if ( length(right_out)>1 ) right_out <- paste( right_out , collapse="" )
 
                 # outcome var and distribution name
-                if ( as_log_lik==FALSE ) {
+                if ( !as_log_lik ) {
                     out <- concat( out , "    " , "for ( i in 1:" , max_index , " ) " )
-                    if ( do_iff == TRUE )
+                    if ( do_iff )
                         out <- concat( out , "\n" , inden(2) , "if ( " , deparse(iff_out) , " ) " )
                     out <- concat( out , "target += " , right_out , ";\n" )
                 } else {
                     # log_lik expressions never vectorized, because vectorized distributions return a sum of log_likelihoods, and we need individual terms
                     out <- concat( out , "    " , "for ( i in 1:" , max_index , " ) " )
-                    if ( do_iff == TRUE )
+                    if ( do_iff  )
                         out <- concat( out , "\n" , inden(2) , "if ( " , deparse(iff_out) , " ) " )
                     out <- concat( out , "log_lik[i] = " , right_out , ";\n" )
                 }
@@ -1259,15 +1259,15 @@ ulam_dists <- list(
                 right_out <- concat( right_out , " )" )
 
                 # outcome var and distribution name
-                if ( as_log_lik==FALSE ) {
+                if ( !as_log_lik ) {
                     out <- concat( out , "    " , "for ( i in 1:" , max_index , " ) " )
-                    if ( do_iff == TRUE )
+                    if ( do_iff )
                         out <- concat( out , "\n" , inden(2) , "if ( " , deparse(iff_out) , " ) " )
                     out <- concat( out , "target += " , right_out , ";\n" )
                 } else {
                     # log_lik expressions never vectorized, because vectorized distributions return a sum of log_likelihoods, and we need individual terms
                     out <- concat( out , "    " , "for ( i in 1:" , max_index , " ) " )
-                    if ( do_iff == TRUE )
+                    if ( do_iff  )
                         out <- concat( out , "\n" , inden(2) , "if ( " , deparse(iff_out) , " ) " )
                     out <- concat( out , "log_lik[i] = " , right_out , ";\n" )
                 }

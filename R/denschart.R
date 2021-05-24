@@ -14,7 +14,7 @@ denschart <- function (x, pars,
     single_real <- function(x) {
         u <- unique(x)
         if ( length(u)==1 ) return(TRUE)
-        if ( all.equal(u,rep(u[1],length(u)))[1]==TRUE ) return(TRUE)
+        if ( all.equal(u,rep(u[1],length(u)))[1] ) return(TRUE)
         return(FALSE)
     }
     opar <- par("mai", "mar", "cex", "yaxs")
@@ -62,7 +62,7 @@ denschart <- function (x, pars,
             }
             if ( nd==3 ) {
                 # matrix
-                if ( drop_matrices==FALSE )
+                if ( !drop_matrices )
                     for ( j in 1:(dim(x[[i]])[2]) ) {
                         new_label <- concat( labels[i] , "[" , j , "]" )
                         x_new[[ new_label ]] <- x[[i]][,j,]
@@ -73,7 +73,7 @@ denschart <- function (x, pars,
                 x_new[[ labels[i] ]] <- x[[i]]
             }
         }#i
-        if ( flag_change==TRUE ) {
+        if ( flag_change ) {
             x <- x_new
             n <- length(x)
             labels <- names(x)
@@ -135,7 +135,7 @@ denschart <- function (x, pars,
         nd <- length(dim(x[[i]]))
         if ( nd==1 ) {
             # single parameter
-            if ( single_real(x[[i]])==FALSE ) {
+            if ( !single_real(x[[i]]) ) {
                 a <- density( x[[i]] , adjust=adjust )
                 a$y <- a$y/max(a$y) * height + y[i] - 0.3
                 polygon( a$x , a$y , col=color , border=border )
@@ -150,22 +150,22 @@ denschart <- function (x, pars,
             d_max <- 0
             for ( j in 1:m ) {
                 a[[j]] <- density( x[[i]][,j] , adjust=adjust )
-                if ( single_real(x[[i]][,j])==FALSE ) {
+                if ( !single_real(x[[i]][,j]) ) {
                     y_max <- max(a[[j]]$y)
                     d_max <- ifelse( y_max > d_max , y_max , d_max )
                 }
             }
             color <- rep_len(color, m)
             for ( j in 1:m ) {
-                if ( single_real(x[[i]][,j])==FALSE ) {
+                if ( !single_real(x[[i]][,j]) ) {
                     a[[j]]$y <- a[[j]]$y/d_max * height + y[i] - 0.3
                     polygon( a[[j]]$x , a[[j]]$y , col=col.alpha(color[j],alpha) , border=border )
                     x_label[j] <- a[[j]]$x[ a[[j]]$y==max(a[[j]]$y) ][1]
                 }
             }#j
-            if ( label_vectors==TRUE )
+            if ( label_vectors )
                 for ( j in 1:m )
-                    if ( single_real(x[[i]][,j])==FALSE )
+                    if ( !single_real(x[[i]][,j]) )
                         text( x_label[j] , y[i] , labels=as.character(j) , cex=0.6 )
         }#2
         if ( nd==3 ) {

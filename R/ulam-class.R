@@ -26,7 +26,7 @@ function( object , depth=1 , pars , prob=0.89 , digits=2 , sort=NULL , decreasin
     result <- as.data.frame( result )
 
     banlist <- c("dev","lp__")
-    if ( lp__==TRUE ) banlist <- c("dev")
+    if ( lp__ ) banlist <- c("dev")
     idx <- which( rownames(result) %in% banlist )
     idx2 <- grep( "log_lik[" , rownames(result) , fixed=TRUE )
     if ( length(idx2)>0 ) idx <- c( idx , idx2 )
@@ -55,7 +55,7 @@ function(object,n,clean=TRUE,pars,...) {
     if (missing(pars)) pars <- object@pars
     p <- rstan::extract(object@stanfit,pars=pars,...)
     # get rid of dev and lp__
-    if ( clean==TRUE ) {
+    if ( clean ) {
         p[['dev']] <- NULL
         p[['lp__']] <- NULL
         p[['log_lik']] <- NULL
@@ -219,7 +219,7 @@ traceplot_ulam <- function( object , pars , chains , col=rethink_palette , alpha
         wdev <- which(pars=="dev")
         if ( length(wdev)>0 ) pars <- pars[-wdev]
         wlp <- which(pars=="lp__")
-        if ( length(wlp)>0 & lp==FALSE ) pars <- pars[-wlp]
+        if ( length(wlp)>0 & !lp ) pars <- pars[-wlp]
         wlp <- grep( "log_lik" , pars , fixed=TRUE )
         if ( length(wlp)>0 ) pars <- pars[-wlp]
     } else
@@ -276,7 +276,7 @@ traceplot_ulam <- function( object , pars , chains , col=rethink_palette , alpha
         # add polygon here for warmup region?
         diff <- abs(ylim[1]-ylim[2])
         ylim <- ylim + c( -diff/2 , diff/2 )
-        if ( show_warmup==TRUE )
+        if ( show_warmup )
             polygon( n_warm*c(-1,1,1,-1) , ylim[c(1,1,2,2)] , col=bg , border=NA )
         neff_use <- neff[ names(neff)==main ]
         mtext( paste("n_eff =",round(neff_use,0)) , 3 , adj=1 , cex=0.9 )
@@ -303,7 +303,7 @@ traceplot_ulam <- function( object , pars , chains , col=rethink_palette , alpha
             pi <- i + (k-1)*n_ppp
             if ( pi <= n_pars ) {
                 if ( pi == 2 ) {
-                    if ( ask==TRUE ) {
+                    if ( ask ) {
                         ask_old <- devAskNewPage(ask = TRUE)
                         on.exit(devAskNewPage(ask = ask_old), add = TRUE)
                     }

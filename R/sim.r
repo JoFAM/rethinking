@@ -19,7 +19,7 @@ sim_core <- function( fit , data , post , vars , n , refresh=0 , replace=list() 
             f <- fit@formula[[i]]
             left <- as.character( f[[2]] )
             if ( left==var ) {
-                if ( debug==TRUE ) print(f)
+                if ( debug ) print(f)
                 break
             }
         }
@@ -41,16 +41,16 @@ sim_core <- function( fit , data , post , vars , n , refresh=0 , replace=list() 
         }
         # get simulation partner function
         rlik <- flik
-        if ( ll==FALSE ) {
+        if ( !ll ) {
             substr( rlik , 1 , 1 ) <- "r"
             # hook for gampois, which needs rgampois2
             if ( rlik=="rgampois" ) rlik <- "rgampois2"
         }
         
-        # check for aggregated binomial, but only when ll==TRUE
+        # check for aggregated binomial, but only when ll
         aggregated_binomial <- FALSE
         size_var_is_data <- FALSE
-        if ( flik=="dbinom" & ll==TRUE ) {
+        if ( flik=="dbinom" & ll ) {
             ftemp <- flist_untag(fit@formula)[[1]]
             size_sym <- ftemp[[3]][[2]]
             if ( class(size_sym)=="name" ) {
@@ -70,7 +70,7 @@ sim_core <- function( fit , data , post , vars , n , refresh=0 , replace=list() 
         for ( i in 1:length(pars) ) {
             pars[[i]] <- lik[[3]][[i+1]]
         }
-        if ( aggregated_binomial==TRUE ) {
+        if ( aggregated_binomial ) {
             # swap 'size' for '1' and outcome for vector of ones
             # will expand to correct number of cases later
             pars[[1]] <- 1
@@ -86,11 +86,11 @@ sim_core <- function( fit , data , post , vars , n , refresh=0 , replace=list() 
             # get number of cases from first variable in data
             n_cases <- length(data[[1]])
         }
-        if ( ll==FALSE ) {
+        if ( !ll ) {
             xeval <- paste( rlik , "(" , n_cases , "," , pars , ")" , collapse="" )
         } else {
             use_outcome <- outcome
-            if ( aggregated_binomial==TRUE ) use_outcome <- 'ones__'
+            if ( aggregated_binomial ) use_outcome <- 'ones__'
             xeval <- paste( rlik , "(" , use_outcome , "," , pars , ",log=TRUE )" , collapse="" )
         }
         
@@ -137,14 +137,14 @@ sim_core <- function( fit , data , post , vars , n , refresh=0 , replace=list() 
             # evaluate
             sim_out[s,] <- eval( parse( text=xeval ) , envir=e )
         }#s
-        if ( debug==TRUE ) print(str(e))
+        if ( debug ) print(str(e))
         
         # check for aggregated binomial outcome
-        if ( aggregated_binomial==TRUE ) {
+        if ( aggregated_binomial ) {
             # aggregated binomial with data for 'size'
             # need to split binomial counts in outcome into series of 0/1 outcomes
             # (1) sum 'size' variable in order to get number of new cases
-            if ( size_var_is_data==TRUE ) {
+            if ( size_var_is_data ) {
                 size_var <- data[[ as.character(ftemp[[3]][[2]]) ]]
             } else {
                 # size is constant numeric, but > 1
@@ -230,7 +230,7 @@ function( fit , data , n=1000 , post , vars , ll=FALSE , refresh=0 , replace=lis
         vars <- as.character(lik[[2]])
     } else {
         # vars listed
-        if ( debug==TRUE ) print(vars)
+        if ( debug ) print(vars)
     }
 
     # loop over vars

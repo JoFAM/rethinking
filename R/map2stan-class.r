@@ -278,7 +278,7 @@ resample_old <- function( object , iter=1e4 , warmup=1000 , chains=1 , cores=1 ,
     result@vcov <- varcov
     
     #DIC
-    if ( DIC==TRUE ) {
+    if ( DIC ) {
         attr(result,"DIC") <- NULL
         dic_calc <- DIC(result)
         pD <- attr(dic_calc,"pD")
@@ -293,7 +293,7 @@ resample_old <- function( object , iter=1e4 , warmup=1000 , chains=1 , cores=1 ,
     }
     
     #WAIC
-    if ( WAIC==TRUE ) {
+    if ( WAIC ) {
         attr(result,"WAIC") <- NULL
         waic_calc <- try(WAIC(result,n=0))
         attr(result,"WAIC") <- waic_calc
@@ -427,7 +427,7 @@ tracerplot <- function( object , pars , col=rethink_palette , alpha=1 , bg=col.a
             pi <- i + (k-1)*n_ppp
             if ( pi <= n_pars ) {
                 if ( pi == 2 ) {
-                    if ( ask==TRUE ) {
+                    if ( ask ) {
                         ask_old <- devAskNewPage(ask = TRUE)
                         on.exit(devAskNewPage(ask = ask_old), add = TRUE)
                     }
@@ -460,7 +460,7 @@ divergence_tracker <- function( x , no_lp=TRUE , pars , ... ) {
     draws <- as.array(x)
     if ( missing(pars) ) {
         pars <- dimnames(x)$parameters
-        if ( no_lp==TRUE ) {
+        if ( no_lp ) {
             pars <- pars[ -which(pars=="lp__") ]
         }
     }

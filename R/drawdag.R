@@ -20,7 +20,7 @@ drawdag <- function( x , col_arrow="black" , col_segment="black" , col_labels="b
         #stop("Please supply plot coordinates for graph! See ?coordinates and ?graphLayout.")
     }
     labels <- names(coords$x)
-    if ( add==FALSE ) {
+    if ( !add ) {
         par(mar=rep(0,4))
         plot.new()
         par(new=TRUE)
@@ -37,7 +37,7 @@ drawdag <- function( x , col_arrow="black" , col_segment="black" , col_labels="b
         xlim <- c(min(coords$x-wx/2),max(coords$x+wx/2))
     if ( missing(ylim) )
         ylim <- c(-max(coords$y+wy/2),-min(coords$y-wy/2))
-    if (add==FALSE ) plot( NA, xlim=xlim, ylim=ylim, xlab="", ylab="", bty="n",
+    if ( !add ) plot( NA, xlim=xlim, ylim=ylim, xlab="", ylab="", bty="n",
         xaxt="n", yaxt="n" )
     # for each variable marked latent, set to draw with circle
     unobs_vars <- latents(x)
@@ -120,7 +120,7 @@ drawdag <- function( x , col_arrow="black" , col_segment="black" , col_labels="b
     arr.width <- 0.15
     arr.type <- "curved"
     arr.adj <- 1
-    if ( xkcd==TRUE ) {
+    if ( xkcd ) {
         for ( ii in 1:length(ax1[directed]) ) {
             lines_xkcd( c(ax1[directed][ii],ax2[directed][ii]) , c(-ay1[directed][ii],-ay2[directed][ii]) , col=col_segment , lwd=lwd*2 , lwdbg=lwd*4 , seg=10 )
         }#ii
@@ -130,7 +130,7 @@ drawdag <- function( x , col_arrow="black" , col_segment="black" , col_labels="b
         goodarrow <- TRUE
     }
 
-    if ( goodarrow==TRUE ) {
+    if ( goodarrow ) {
         #require(shape)
         shape::Arrows( ax1[directed], -ay1[directed], 
             ax2[directed], -ay2[directed], arr.length=0.2 , arr.width=arr.width, col=col_arrow , lwd=lwd , arr.adj=arr.adj , arr.type=arr.type )
@@ -184,7 +184,7 @@ dag_arc <- function (x1, y1, x2, y2, xm, ym, col = "gray", length = 0.1,
     lines( res , col = col , lwd=lwd )
     nr <- length(res$x)
     if (code >= 3) {
-        if ( goodarrow==TRUE ) {
+        if ( goodarrow ) {
             #require(shape)
             shape::Arrows( res$x[4], res$y[4], res$x[1], res$y[1], arr.length=0.2 , arr.width=0.15, col=col , lwd=lwd , arr.adj=1 , arr.type="curved" )
         } else
@@ -192,7 +192,7 @@ dag_arc <- function (x1, y1, x2, y2, xm, ym, col = "gray", length = 0.1,
             code = 1, length = length, lwd = lwd)
     }
     if (code >= 2) {
-        if ( goodarrow==TRUE ) {
+        if ( goodarrow ) {
             #require(shape)
             shape::Arrows( res$x[nr-3], res$y[nr-3], res$x[nr], res$y[nr], arr.length=0.2 , arr.width=0.15, col=col , lwd=lwd , arr.adj=1 , arr.type="curved" )
         } else
@@ -225,7 +225,7 @@ drawopenpaths <- function( x , Z=list() , col_arrow="red" , ... ) {
     }
     # draw open paths in highlight color
     for ( i in 1:length(path_list) ) {
-        if ( path_list$open[i]==TRUE ) {
+        if ( path_list$open[i] ) {
             path_dag <- dagitty( concat( "dag { " , path_list$paths[i] , " }" ) )
             path_dag <- dag_copy_coords( x , path_dag )
             drawdag( path_dag , col_arrow=col_arrow , add=TRUE , ... )

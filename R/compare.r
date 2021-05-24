@@ -34,14 +34,14 @@ compare <- function( ... , n=1e3 , sort="WAIC" , func=WAIC , WAIC=TRUE , refresh
     
     # check class of fit models and warn when more than one class represented
     classes <- as.character(sapply( L , class ))
-    if ( any(classes!=classes[1]) & warn==TRUE ) {
+    if ( any(classes!=classes[1]) & warn ) {
         warning("Not all model fits of same class.\nThis is usually a bad idea, because it implies they were fit by different algorithms.\nCheck yourself, before you wreck yourself.")
     }
     
     # check nobs for all models
     # if different, warn
     nobs_list <- try( sapply( L , nobs ) )
-    if ( any(nobs_list != nobs_list[1]) & warn==TRUE ) {
+    if ( any(nobs_list != nobs_list[1]) & warn ) {
         nobs_out <- paste( mnames , nobs_list , "\n" )
         nobs_out <- concat(nobs_out)
         warning(concat(
@@ -49,9 +49,9 @@ compare <- function( ... , n=1e3 , sort="WAIC" , func=WAIC , WAIC=TRUE , refresh
     }
     
     dSE.matrix <- matrix( NA , nrow=length(L) , ncol=length(L) )
-    # deprecate WAIC==TRUE/FALSE flag
+    # deprecate WAIC/FALSE flag
     # catch it and convert to func intent
-    if ( WAIC==FALSE ) func <- DIC # assume old code that wants DIC
+    if ( !WAIC ) func <- DIC # assume old code that wants DIC
 
     if ( the_func=="DIC" ) {
         IC.list <- lapply( L , function(z) DIC( z , n=n ) )
@@ -129,7 +129,7 @@ setMethod("plot" , "compareIC" , function(x,y,xlim,SE=TRUE,dSE=TRUE,weights=FALS
     if ( !is.null(x[['SE']]) ) devSE <- x[['SE']]
     dev_out_lower <- dev_out - devSE
     dev_out_upper <- dev_out + devSE
-    if ( weights==TRUE ) {
+    if ( weights ) {
         dev_in <- ICweights(dev_in)
         dev_out <- ICweights(dev_out)
         dev_out_lower <- ICweights(dev_out_lower)
@@ -138,7 +138,7 @@ setMethod("plot" , "compareIC" , function(x,y,xlim,SE=TRUE,dSE=TRUE,weights=FALS
     n <- length(dev_in)
     if ( missing(xlim) ) {
         xlim <- c(min(dev_in),max(dev_out))
-        if ( SE==TRUE & !is.null(x[['SE']]) ) {
+        if ( SE & !is.null(x[['SE']]) ) {
             xlim[1] <- min(dev_in,dev_out_lower)
             xlim[2] <- max(dev_out_upper)
         }
@@ -149,18 +149,18 @@ setMethod("plot" , "compareIC" , function(x,y,xlim,SE=TRUE,dSE=TRUE,weights=FALS
     points( dev_out[n:1] , 1:n )
     mtext(main)
     # standard errors
-    if ( !is.null(x[['SE']]) & SE==TRUE ) {
+    if ( !is.null(x[['SE']]) & SE ) {
         for ( i in 1:n ) {
             lines( c(dev_out_lower[i],dev_out_upper[i]) , rep(n+1-i,2) , lwd=0.75 )
         }
     }
-    if ( !all(is.na(x@dSE)) & dSE==TRUE ) {
+    if ( !all(is.na(x@dSE)) & dSE ) {
         # plot differences and stderr of differences
         dcol <- col.alpha("black",0.5)
         abline( v=dev_out[1] , lwd=0.5 , col=dcol )
         diff_dev_lower <- dev_out - x$dSE
         diff_dev_upper <- dev_out + x$dSE
-        if ( weights==TRUE ) {
+        if ( weights ) {
             diff_dev_lower <- ICweights(diff_dev_lower)
             diff_dev_upper <- ICweights(diff_dev_upper)
         }
@@ -205,7 +205,7 @@ compare_old <- function( ... , nobs=NULL , sort="AICc" , BIC=FALSE , DIC=FALSE ,
     AICc.list <- sapply( L , function(z) AICc( z , nobs=nobs ) )
     dAICc <- AICc.list - min( AICc.list )
     post.AICc <- exp( -0.5*dAICc ) / sum( exp(-0.5*dAICc) )
-    if ( BIC==TRUE ) {
+    if ( BIC ) {
         BIC.list <- sapply( L , function(z) myBIC( z , nobs=nobs ) )
         dBIC <- BIC.list - min( BIC.list )
         post.BIC <- exp( -0.5*dBIC ) / sum( exp(-0.5*dBIC) )
@@ -214,17 +214,17 @@ compare_old <- function( ... , nobs=NULL , sort="AICc" , BIC=FALSE , DIC=FALSE ,
     k <- sapply( L , getdf )
     
     result <- data.frame( k=k , AICc=AICc.list , w.AICc=post.AICc )
-    if ( BIC==TRUE ) 
+    if ( BIC ) 
         result <- data.frame( k=k , AICc=AICc.list , BIC=BIC.list , w.AICc=post.AICc , w.BIC=post.BIC )
 
-    if ( delta==TRUE ) {
+    if ( delta ) {
         r2 <- data.frame( dAICc=dAICc )
-        if ( BIC==TRUE ) r2 <- data.frame( dAICc=dAICc , dBIC=dBIC )
+        if ( BIC ) r2 <- data.frame( dAICc=dAICc , dBIC=dBIC )
         result <- cbind( result , r2 )
     }
 
     # DIC from quadratic approx posterior defined by vcov and coef
-    if ( DIC==TRUE ) {
+    if ( DIC ) {
         DIC.list <- rep( NA , length(L) )
         pD.list <- rep( NA , length(L) )
         for ( i in 1:length(L) ) {

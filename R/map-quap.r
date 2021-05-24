@@ -16,7 +16,7 @@ flist_untag <- function(flist,eval=TRUE) {
             flist[[i]][[1]] <- as.name("~")
         }
         # eval required to convert from class language to class formula
-        if ( eval==TRUE )
+        if ( eval )
             flist[[i]] <- eval(flist[[i]])
     }
     as.list(flist)
@@ -143,7 +143,7 @@ quap <- function( flist , data , start , method="BFGS" , hessian=TRUE , debug=FA
         } else {
             fname <- as.character( RHS[[1]] )
         }
-        if ( fname=="[" | fname=="+" | fname=="*" | fname=="-" | fname=="/" | fname=="%*%" | fname %in% invlink.names | flag_monad_linear_model==TRUE ) {
+        if ( fname=="[" | fname=="+" | fname=="*" | fname=="-" | fname=="/" | fname=="%*%" | fname %in% invlink.names | flag_monad_linear_model ) {
             # linear model formula with no density (but maybe invlink) function
             # return a list with parameter name in [[1]] and text of RHS in [[2]]
             thetext <- list( as.character(LHS) , paste( deparse(RHS) , collapse=" " ) )
@@ -203,7 +203,7 @@ quap <- function( flist , data , start , method="BFGS" , hessian=TRUE , debug=FA
         if ( m==-1 ) return( x )
         s <- regmatches( x=x , m=m )
         
-        if ( add.par==TRUE ) replacement <- paste( "(" , replacement , ")" , collapse="" )
+        if ( add.par ) replacement <- paste( "(" , replacement , ")" , collapse="" )
         
         w.start <- substr(s,1,1)
         w.end <- substr(s,nchar(s),nchar(s))
@@ -344,7 +344,7 @@ quap <- function( flist , data , start , method="BFGS" , hessian=TRUE , debug=FA
         
         #stop( paste( "Priors defined for parameters not in start list:" , paste(bad_pars,collapse=" ") ) )
         
-        if ( verbose==TRUE )
+        if ( verbose )
             message( paste( "Sampling start values from priors for:" , paste(bad_pars,collapse=" ") ) )
         
         for ( k in bad_pars ) {
@@ -410,7 +410,7 @@ quap <- function( flist , data , start , method="BFGS" , hessian=TRUE , debug=FA
     }
     
     # list parameters without explicit priors and warn
-    if ( verbose==TRUE ) {
+    if ( verbose ) {
         if ( any( !(names(pars) %in% names(pars_with_priors)) ) ) {
             flat_pars <- names(pars)[ !(names(pars) %in% names(pars_with_priors)) ]
             message( paste( "Using flat priors for:" , paste(flat_pars,collapse=" ") ) )
@@ -452,13 +452,13 @@ quap <- function( flist , data , start , method="BFGS" , hessian=TRUE , debug=FA
     ########################################
     # call optim for search
 
-    if ( debug==TRUE ) {
+    if ( debug ) {
         print("trying optim now in list:")
         print(flist2)
     }
 
     fit <- list()
-    if ( dofit==TRUE ) {
+    if ( dofit ) {
         fit <- try(
             suppressWarnings(optim( par=pars , fn=make_minuslogl , flist=flist2 , data=data , veclist=veclist , hessian=hessian , method=method , ... ))
             , silent=TRUE
@@ -514,7 +514,7 @@ quap <- function( flist , data , start , method="BFGS" , hessian=TRUE , debug=FA
     # compute minus log-likelihood at MAP, ignoring priors to do so
     # need this for correct deviance calculation, as deviance ignores priors
     fmll <- function() return(NULL)
-    if ( dofit==TRUE ) {
+    if ( dofit ) {
         fit$minuslogl <- make_minuslogl( fit$par , flist=flist.ll , data=data , veclist=veclist )
     
         # function to use later in computing DIC
@@ -523,7 +523,7 @@ quap <- function( flist , data , start , method="BFGS" , hessian=TRUE , debug=FA
     
     # rename any _._n parameters to [n]
     coefs <- 0
-    if ( dofit==TRUE ) {
+    if ( dofit ) {
         coefs <- fit$par
         for ( i in 1:length(coefs) ) {
             a_split <- strsplit( names(coefs)[i] , idx_marker_string )[[1]]
@@ -552,7 +552,7 @@ quap <- function( flist , data , start , method="BFGS" , hessian=TRUE , debug=FA
     attr(m,"veclist") <- veclist
     if (!missing(data)) attr(m,"nobs") = length(data[[1]])
     # check convergence and warn
-    if ( dofit==TRUE ) xcheckconvergence(m)
+    if ( dofit ) xcheckconvergence(m)
     # result
     m
 }

@@ -76,9 +76,9 @@ dens <- function( x , adj=0.5 , norm.comp=FALSE , main="" , show.HPDI=FALSE , sh
         }
     } else {
         # vector
-        if ( rm.na==TRUE ) x <- x[ !is.na(x) ]
+        if ( rm.na ) x <- x[ !is.na(x) ]
         thed <- density(x,adjust=adj)
-        if ( add==FALSE ) {
+        if ( !add ) {
             set_nice_margins()
             plot( thed , main=main , ... )
         } else
@@ -87,13 +87,13 @@ dens <- function( x , adj=0.5 , norm.comp=FALSE , main="" , show.HPDI=FALSE , sh
             hpd <- HPDI( x , prob=show.HPDI )
             shade( thed , hpd )
         }
-        if ( norm.comp==TRUE ) {
+        if ( norm.comp ) {
             mu <- mean(x)
             sigma <- sd(x)
             curve( dnorm( x , mu , sigma ) , col="white" , lwd=2 , add=TRUE )
             curve( dnorm( x , mu , sigma ) , add=TRUE )
         }
-        if ( show.zero==TRUE ) {
+        if ( show.zero ) {
             lines( c(0,0) , c(0,max(thed$y)*2) , lty=2 )
         }
     }
@@ -101,7 +101,7 @@ dens <- function( x , adj=0.5 , norm.comp=FALSE , main="" , show.HPDI=FALSE , sh
 
 # like dens, but uses bins and bars
 bins <- function( x , n_bins=30 , rm.na=TRUE , ... ) {
-    if ( rm.na==TRUE ) x <- x[ !is.na(x) ]
+    if ( rm.na ) x <- x[ !is.na(x) ]
     cuts <- seq( from=min(x) , to=max(x) , length.out=n_bins )
     y <- cut( x , cuts )
     y <- table(y)
@@ -160,7 +160,7 @@ show.naive.posterior <- function( est , se , model=NULL , level=0.95 , xlab="est
             est <- as.vector(est)
             se <- as.vector( sqrt( diag( vcov(model) ) ) )
         }
-        if ( f.found.class==FALSE ) {
+        if ( !f.found.class ) {
             return( paste("Could not find handler for model of class",class(model)) )
         }
     }
@@ -177,28 +177,28 @@ show.naive.posterior <- function( est , se , model=NULL , level=0.95 , xlab="est
     }
     maxy <- max( y )
     if ( is.null(ciy) ) ciy <- -maxy/10
-    if ( show.ci==FALSE ) ciy <- 0
+    if ( !show.ci ) ciy <- 0
     yaxistype <-"s"
-    if ( show.density==FALSE ) {
+    if ( !show.density ) {
         maxy <- 0
         yaxistype <- "n"
         ylab=""
     }
     plot( 0 , 0 , type="n" , xlab=xlab , ylab=ylab , ylim=c(ciy,maxy) , xlim=c(minx,maxx) , yaxp=c(0,maxy,4) , yaxt=yaxistype , ... )
-    if ( zero.lines==TRUE ) {
-        if ( show.density==TRUE ) 
+    if ( zero.lines ) {
+        if ( show.density ) 
             lines( c(minx-abs(minx),maxx+abs(maxx)) , c(0,0) , lty=3 )
         lines( c(0,0) , c(-1,maxy*2) , lty=3 )
     }
     if ( is.null(cols) ) cols <- rep( "black" , length(est) )
     if ( is.null(lwidths) ) lwidths <- rep( 1 , length(est) )
-    if ( show.density==TRUE ) {
+    if ( show.density ) {
         for ( i in 1:nrow(y) ) {
             lines( x , y[i,] , col=cols[i] , lwd=lwidths[i] , ... )
         }
     }
     yoff.ci <- rep(0,nrow(ci))
-    if ( show.ci==TRUE ) {
+    if ( show.ci ) {
         for ( i in 1:nrow(ci) ) {
             yoff.ci[i] <- ciy/(nrow(ci)+1)*i
             lines( ci[i,] , rep( yoff.ci[i] , 2 ) , col=cols[i] , lwd=lwidths[i] , ... )
@@ -210,7 +210,7 @@ show.naive.posterior <- function( est , se , model=NULL , level=0.95 , xlab="est
         yloc <- dnorm( xloc , xloc , se )
         yoff <- ifelse( yloc==max(yloc) , ciy/2 , -ciy/2 )
         yloc <- yloc + yoff
-        if ( show.density==FALSE ) {
+        if ( !show.density ) {
             yloc <- yoff.ci + 0.01
         }
         for ( i in 1:length(label) ) {
@@ -221,7 +221,7 @@ show.naive.posterior <- function( est , se , model=NULL , level=0.95 , xlab="est
 
 # simple histogram
 simplehist <- function( x , round=TRUE , ylab="Frequency" , off=0.2 , lwd=3 , col=c("black",rangi2) , ... ) {
-    if ( round==TRUE ) x <- round(x)
+    if ( round ) x <- round(x)
     if ( is.null(dim(x)) ) {
         y <- table(x)
         plot(y,ylab=ylab,lwd=lwd,col=col[1],...)
@@ -250,13 +250,13 @@ simplehist_old <- function( x , ylab="Frequency" , xlab="Count" , ycounts=TRUE ,
             bins <- min(0,x):max(x)
         }
         freqs <- sapply( bins , function(z) length(x[x==z])/sum(x) )
-        if ( ycounts==TRUE ) freqs <- sapply( bins , function(z) length( x[ as.character(x)==as.character(z) ] ) )
+        if ( ycounts ) freqs <- sapply( bins , function(z) length( x[ as.character(x)==as.character(z) ] ) )
         iflag <- TRUE
     } else {
         # continuous dist (fractional values detected)
     }
     # plot frame
-    if ( iflag==TRUE ) {
+    if ( iflag ) {
         # integers
         if ( is.null(ylim) )
             ylim <- c( 0 , max(freqs) )

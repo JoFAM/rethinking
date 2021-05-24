@@ -50,7 +50,7 @@ ulam <- function( flist , data , pars , pars_omit , start , chains=1 , cores=1 ,
         flist <- flist@formula
     }
 
-    if ( pre_scan_data==TRUE ) {
+    if ( pre_scan_data ) {
         # pre-scan for character variables and remove
         x_to_remove <- c()
         for ( i in 1:length(data) ) {
@@ -58,7 +58,7 @@ ulam <- function( flist , data , pars , pars_omit , start , chains=1 , cores=1 ,
                 x_to_remove <- c( x_to_remove , names(data)[i] )
             }
             if ( class(data[[i]])[1] =="factor" ) {
-                if ( coerce_int==FALSE )
+                if ( !coerce_int )
                     x_to_remove <- c( x_to_remove , names(data)[i] )
                 else {
                     # coerce factor to index variable
@@ -67,7 +67,7 @@ ulam <- function( flist , data , pars , pars_omit , start , chains=1 , cores=1 ,
             }
         }#i
         if ( length(x_to_remove)>0 ) {
-            if ( messages==TRUE ) {
+            if ( messages ) {
                 message( "Removing one or more character or factor variables:" )
                 message( x_to_remove )
             }
@@ -80,10 +80,10 @@ ulam <- function( flist , data , pars , pars_omit , start , chains=1 , cores=1 ,
                 if ( all( as.integer(data[[i]])==data[[i]] , na.rm=TRUE ) ) {
                     #data[[i]] <- as.integer(data[[i]])
                     if ( class(data[[i]])[1]!="integer" & !inherits(data[[i]],"matrix") ) {
-                        if ( coerce_int==TRUE ) {
+                        if ( coerce_int ) {
                             data[[i]] <- as.integer(data[[i]])
                         }
-                        if ( messages==TRUE & coerce_int==FALSE ) {
+                        if ( messages & !coerce_int ) {
                             vn <- names(data)[i]
                             message( "Cautionary note:" )
                             message( concat( "Variable ", vn , " contains only integers but is not type 'integer'. If you intend it as an index variable, you should as.integer() it before passing to ulam." ) )
@@ -117,8 +117,8 @@ ulam <- function( flist , data , pars , pars_omit , start , chains=1 , cores=1 ,
 
     m_f_reduce_declare <- "" # reduce_sum function
     m_f_reduce <- ""
-    if ( threads > 1 & cmdstan==FALSE ) stop( "threads > 1 currently requires cmdstan=TRUE" )
-    if ( threads > 1 & log_lik==TRUE ) stop( "threads > 1 currently not compatible with log_lik=TRUE." )
+    if ( threads > 1 & !cmdstan ) stop( "threads > 1 currently requires cmdstan=TRUE" )
+    if ( threads > 1 & log_lik ) stop( "threads > 1 currently not compatible with log_lik=TRUE." )
 
     # functions for manipulating code blocks
     model_declare_append <- function( the_text ) {
@@ -132,7 +132,7 @@ ulam <- function( flist , data , pars , pars_omit , start , chains=1 , cores=1 ,
         }
     }
     model_body_append <- function( the_text , override=FALSE ) {
-        if ( threads==1 | override==TRUE ) {
+        if ( threads==1 | override ) {
             newcode <- concat( m_model_txt , the_text )
             assign( "m_model_txt" , newcode , inherits=TRUE )
         } else {
@@ -218,7 +218,7 @@ ulam <- function( flist , data , pars , pars_omit , start , chains=1 , cores=1 ,
                 symbols <- c( symbols , nested_symbols )
             }
             if ( class( X[[i]] )=="name" ) {
-                if ( strip==TRUE ) {
+                if ( strip ) {
                     if ( !(as.character(X[[i]]) %in% c( operations , names(inverse_links) , names(stan_types) , dist_names_stan , dist_names_R , "c" ) ) ) {
                         # a symbol, not a binary operator
                         symbols <- c( symbols , as.character(X[[i]]) )
@@ -341,7 +341,7 @@ ulam <- function( flist , data , pars , pars_omit , start , chains=1 , cores=1 ,
                 break
             }
         }
-        if ( found==FALSE ) stop( concat( "No template for distribution '",the_dist,"'" ) )
+        if ( !found ) stop( concat( "No template for distribution '",the_dist,"'" ) )
         return( template )
     }
 
@@ -529,7 +529,7 @@ ulam <- function( flist , data , pars , pars_omit , start , chains=1 , cores=1 ,
                 # if in reduce context, need size(outcome) as length
                 # not likely to know name of outcome var at this point, so insert XREDUCEOUTX placeholder - will replace later with known outcome
                 N_insert <- N
-                if ( reduce==TRUE ) N_insert <- concat("size(XREDUCEOUTX)")
+                if ( reduce ) N_insert <- concat("size(XREDUCEOUTX)")
                 loop_txt <- concat( indent , "for ( i in 1:" , N_insert , " ) {\n" )
                 local_indent <- inden(2)
                 # insert [i] to each data variable on right-hand side
@@ -577,9 +577,9 @@ ulam <- function( flist , data , pars , pars_omit , start , chains=1 , cores=1 ,
             right_text <- paste( right_txt , collapse="\n" )
         }
         # if reduce context, need [start+i-1] in place of [i]
-        if ( reduce==TRUE )
+        if ( reduce )
             right_txt <- gsub( "[i]" , "[start+i-1]" , right_txt , fixed=TRUE )
-        if ( transpose_flag==TRUE ) {
+        if ( transpose_flag ) {
             right_txt <- concat( right_txt , "'" )
         }
 
@@ -730,7 +730,7 @@ ulam <- function( flist , data , pars , pars_omit , start , chains=1 , cores=1 ,
                                 # add impute_bank entry
                                 impute_bank[[ var ]] <- list( type="real" , n=n_miss , merge=var_merge )
                                 # message
-                                if ( messages==TRUE )
+                                if ( messages )
                                     message( concat( "Found " , n_miss , " NA values in " , var , " and attempting imputation." ) )
                             }
 
@@ -744,7 +744,7 @@ ulam <- function( flist , data , pars , pars_omit , start , chains=1 , cores=1 ,
                             # could be a merge_missing call, so check
                             right_token <- as.character( flist[[i]][[3]] )[1]
                             if ( right_token != "merge_missing" )
-                                if ( messages==TRUE )
+                                if ( messages )
                                     message( concat( "Found " , n_miss , " NA values in " , var , ". Not sure what to do with these, and they might precent the model from running." ) )
                         }
 
@@ -954,7 +954,7 @@ ulam <- function( flist , data , pars , pars_omit , start , chains=1 , cores=1 ,
                     # check if type=='local' or previous dimming was explicit (: operator)
                     if ( symbols[[ left_symbol[j] ]]$type=="local" ) do_add <- FALSE
                 }
-                if ( do_add==TRUE )
+                if ( do_add )
                     symbols[[ left_symbol[j] ]] <- list( type=left_type , dims=the_dims , constraint=constraint )
             }#j
 
@@ -990,7 +990,7 @@ ulam <- function( flist , data , pars , pars_omit , start , chains=1 , cores=1 ,
 
         }#par
 
-        if ( left_type=="data" & sample_prior==FALSE ) {
+        if ( left_type=="data" & !sample_prior ) {
 
             # first check for implied Stan type for left var
             the_dist <- as.character( flist[[i]][[3]] ) # will be a character vector including pars
@@ -1032,7 +1032,7 @@ ulam <- function( flist , data , pars , pars_omit , start , chains=1 , cores=1 ,
             model_body_append( built )
             # add log_lik to generated quantities?
             # currently just uses first outcome --- for multiple outcome models, will need new code
-            if ( i==1 && log_lik==TRUE ) {
+            if ( i==1 && log_lik ) {
                 # add by default
                 built <- compose_distibution( left_symbol , flist[[i]] , as_log_lik=TRUE )
                 m_gq2 <- concat( m_gq2 , built )
@@ -1140,7 +1140,7 @@ ulam <- function( flist , data , pars , pars_omit , start , chains=1 , cores=1 ,
             }
             
             # add to gq for log_lik, but only when not in transformed pars
-            if ( log_lik==TRUE & the_block=="model" ) {
+            if ( log_lik & the_block=="model" ) {
                 # also add to generated quantities, so we can compute log_lik, assuming likelihood might contain this local symbol
                 m_gq2 <- concat( m_gq2 , local_built )
             }
@@ -1153,7 +1153,7 @@ ulam <- function( flist , data , pars , pars_omit , start , chains=1 , cores=1 ,
 
     # add any remaining data variables named in data list
     # index variables that only appear as left-side indexes e.g.
-    if ( declare_all_data==TRUE ) {
+    if ( declare_all_data ) {
         for ( i in names(data) ) {
             if ( !( i %in% names(symbols) ) ) {
                 symbols[[ i ]] <- register_data_var( i )
@@ -1217,7 +1217,7 @@ ulam <- function( flist , data , pars , pars_omit , start , chains=1 , cores=1 ,
                 model_declare_append( concat( indent , Z , ";\n" ) )
             }
 
-            if ( log_lik==TRUE & the_block %in% c("model","save") ) {
+            if ( log_lik & the_block %in% c("model","save") ) {
                 # also add to generated quantities
                 m_gq1 <- concat( m_gq1 , indent , Z , ";\n" )
                 pars_omit <- c( pars_omit , left_symbol ) # mark to omit from returned samples
@@ -1370,7 +1370,7 @@ ulam <- function( flist , data , pars , pars_omit , start , chains=1 , cores=1 ,
     } else {
         use_pars <- pars
     }
-    if ( log_lik==TRUE ) use_pars <- c( use_pars , "log_lik" )
+    if ( log_lik ) use_pars <- c( use_pars , "log_lik" )
     if ( length(pars_omit)>0 ) {
         # remove these names from use_pars
         idx <- which( pars_omit %in% use_pars )
@@ -1399,11 +1399,11 @@ ulam <- function( flist , data , pars , pars_omit , start , chains=1 , cores=1 ,
     }
 
     # fire lasers pew pew
-    if ( sample==TRUE ) {
+    if ( sample ) {
         if ( length(start)==0 ) {
             # without explicit start list
-            if ( prev_stanfit==FALSE ) {
-                if ( cmdstan==FALSE )
+            if ( !prev_stanfit ) {
+                if ( !cmdstan )
                     # rstan interface
                     stanfit <- stan( model_code = model_code , data = data , pars=use_pars , chains=chains , cores=cores , iter=iter , control=control , warmup=warmup , ... )
                 else {
@@ -1428,7 +1428,7 @@ ulam <- function( flist , data , pars , pars_omit , start , chains=1 , cores=1 ,
                     stanfit <- rstan::read_stan_csv(cmdstanfit$output_files())
                 }
             } else {
-                if ( cmdstan==FALSE ) {
+                if ( !cmdstan ) {
                     # rstan interface, previous stanfit object
                     stanfit <- stan( fit = prev_stanfit_object , data = data , pars=use_pars , 
                          chains=chains , cores=cores , iter=iter , control=control , warmup=warmup , ... )
@@ -1461,7 +1461,7 @@ ulam <- function( flist , data , pars , pars_omit , start , chains=1 , cores=1 ,
             f_init <- "random"
             if ( class(start)=="list" ) f_init <- function() return(start)
             if ( class(start)=="function" ) f_init <- start
-            if ( prev_stanfit==FALSE )
+            if ( !prev_stanfit )
                 stanfit <- stan( model_code = model_code , data = data , pars=use_pars , 
                          chains=chains , cores=cores , iter=iter , control=control , init=f_init , warmup=warmup , ... )
             else
@@ -1480,7 +1480,7 @@ ulam <- function( flist , data , pars , pars_omit , start , chains=1 , cores=1 ,
                 marginalize_bank = marginalize_bank
             )
 
-    if ( sample==FALSE ) {
+    if ( !sample ) {
         result <- list(
             #stanfit = stanfit,
             formula = flist.orig,
@@ -1493,7 +1493,7 @@ ulam <- function( flist , data , pars , pars_omit , start , chains=1 , cores=1 ,
         # compute expected values of parameters
         s <- summary(stanfit)$summary
         s <- s[ -which( rownames(s)=="lp__" ) , ] # clean out lp__
-        if ( log_lik==TRUE ) {
+        if ( log_lik ) {
             # clean out the log_lik entries - possibly very many
             idx <- grep( "log_lik[" , rownames(s) , fixed=TRUE )
             s <- s[ -idx , ]
@@ -1530,7 +1530,7 @@ ulam <- function( flist , data , pars , pars_omit , start , chains=1 , cores=1 ,
         rds_file_name <- concat( file , ".rds" )
         if ( !file.exists(rds_file_name) ) {
             # save it
-            if ( messages==TRUE ) message(concat("Saving result as ",rds_file_name))
+            if ( messages ) message(concat("Saving result as ",rds_file_name))
             saveRDS( result , file=rds_file_name )
         }
     }
@@ -1586,7 +1586,7 @@ link_ulam <- function( fit , data , post , simplify=TRUE , symbols , ... ) {
         if ( !(names( fit@formula_parsed$link_funcs )[j] %in% symbols) ) next
 
         # get number of cases for this symbol
-        if ( use_orig_data==TRUE )
+        if ( use_orig_data )
             n_cases <- fit@formula_parsed$link_funcs[[ j ]]$N
         else
             # guess from length of data
@@ -1628,7 +1628,7 @@ link_ulam <- function( fit , data , post , simplify=TRUE , symbols , ... ) {
 
     n_links <- length(symbols)
 
-    if ( simplify==TRUE && n_links==1 ) out <- out[[1]]
+    if ( simplify && n_links==1 ) out <- out[[1]]
 
     return(out)
 }

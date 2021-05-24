@@ -9,7 +9,7 @@ function( fit , data , n=1000 , post , refresh=0 , replace=list() , flatten=TRUE
     if ( missing(data) ) {
         data <- fit@data
     } else {
-        if ( debug==TRUE ) print(str(data))
+        if ( debug ) print(str(data))
     }
     
     if ( missing(post) ) 
@@ -43,7 +43,7 @@ function( fit , data , n=1000 , post , refresh=0 , replace=list() , flatten=TRUE
         ref_inc <- floor(n*refresh)
         ref_next <- ref_inc
         
-        if ( f_do_lm==TRUE ) {
+        if ( f_do_lm ) {
             parout <- fit@links[[i]][[1]]
             lm <- fit@links[[i]][[2]]
         } else {
@@ -120,7 +120,7 @@ function( fit , data , n=1000 , post , refresh=0 , replace=list() , flatten=TRUE
     
     if ( refresh>0 ) cat("\n")
     
-    if ( flatten==TRUE )
+    if ( flatten )
         if ( length(link_out)==1 ) link_out <- link_out[[1]]
     
     return(link_out)

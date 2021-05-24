@@ -36,7 +36,7 @@ trankplot <- function( object , bins=30 , pars , chains , col=rethink_palette , 
     wdev <- which(pars=="dev")
     if ( length(wdev)>0 ) pars <- pars[-wdev]
     wlp <- which(pars=="lp__")
-    if ( length(wlp)>0 & lp==FALSE ) pars <- pars[-wlp]
+    if ( length(wlp)>0 & !lp ) pars <- pars[-wlp]
     wlp <- grep( "log_lik" , pars , fixed=TRUE )
     if ( length(wlp)>0 ) pars <- pars[-wlp]
     
@@ -81,8 +81,8 @@ trankplot <- function( object , bins=30 , pars , chains , col=rethink_palette , 
     # worker
     plot_make <- function( main , par , neff , ... ) {
         ylim <- range(h[,,par])
-        if ( stacked==TRUE ) ylim[2] <- ylim[2] * ( length(chains) - 1 )
-        if ( axes==TRUE )
+        if ( stacked ) ylim[2] <- ylim[2] * ( length(chains) - 1 )
+        if ( axes )
             plot( NULL , xlab="" , ylab="" , bty="l" , xlim=range(breaks) , ylim=ylim , ... )
         else
             plot( NULL , xlab="" , ylab="" , bty="l" , xlim=range(breaks) , ylim=ylim , xaxt="n" , yaxt="n" , ... )
@@ -95,7 +95,7 @@ trankplot <- function( object , bins=30 , pars , chains , col=rethink_palette , 
     nb <- length(breaks)
     plot_trank <- function( r , ... ) {
         # rank draws from all chains
-        if ( stacked==FALSE ) {
+        if ( !stacked ) {
             for ( i in chains ) {
                 x <- c( breaks[1] , rep( breaks[2:(nb-1)] , each=2 ) , breaks[nb] )
                 y <- rep( r[ 1:(nb-1) ,i] , each=2 )
@@ -119,7 +119,7 @@ trankplot <- function( object , bins=30 , pars , chains , col=rethink_palette , 
     
     # make window
     #set_nice_margins()
-    if ( add==FALSE ) {
+    if ( !add ) {
         par(mgp = c(0.5, 0.5, 0), mar = c(1.5, 1.5, 1.5, 1) + 0.1, tck = -0.02)
         par(mfrow=c(n_rows_per_page,n_cols))
     } 
@@ -131,7 +131,7 @@ trankplot <- function( object , bins=30 , pars , chains , col=rethink_palette , 
             pi <- i + (k-1)*n_ppp
             if ( pi <= n_pars ) {
                 if ( pi == 2 ) {
-                    if ( ask==TRUE & add==FALSE ) {
+                    if ( ask & !add ) {
                         ask_old <- devAskNewPage(ask = TRUE)
                         on.exit(devAskNewPage(ask = ask_old), add = TRUE)
                     }

@@ -2,7 +2,7 @@
 divergent <- function( fit , warmup=FALSE ) {
     if ( class(fit) %in% c("map2stan","ulam") ) fit <- fit@stanfit
     x <- rstan::get_sampler_params(fit)
-    if ( warmup==FALSE ) {
+    if ( !warmup ) {
         nwarmup <- fit@stan_args[[1]]$warmup
         niter <- fit@stan_args[[1]]$iter
         n <- sapply( x , function(ch) sum(ch[(nwarmup+1):niter,"divergent__"]) )
@@ -26,7 +26,7 @@ dashboard <- function( fit , warmup=FALSE , plot=TRUE , trank=TRUE ) {
     nwarmup <- fit@stan_args[[1]]$warmup
     niter <- fit@stan_args[[1]]$iter
     n_samples <- (niter - nwarmup)*n_chains
-    if ( warmup==FALSE ) {
+    if ( !warmup ) {
         for ( i in 1:n_chains ) {
             x[[i]] <- x[[i]][(nwarmup+1):niter,1:6]
         }
@@ -72,7 +72,7 @@ dashboard <- function( fit , warmup=FALSE , plot=TRUE , trank=TRUE ) {
     post <- extract(fit, pars = pars, permuted = FALSE, inc_warmup = TRUE)
 
     # display
-    if ( plot==TRUE ) {
+    if ( plot ) {
         set_nice_margins()
         par(cex.axis = 1 , cex.lab=1.2 )
         par(mfrow=c(2,2))
@@ -98,7 +98,7 @@ dashboard <- function( fit , warmup=FALSE , plot=TRUE , trank=TRUE ) {
         if ( sum(x[,5])>10 ) text( 0.5 , 0.2 , "Check yourself before\nyou wreck yourself" , cex=1.5 )
 
         # three trace plots with lowest n_eff
-        if ( trank==TRUE ) {
+        if ( trank ) {
             trankplot( fit , pars="lp__" , lp=TRUE , add=TRUE )
         } else {
             plot_make( "log-probability" , "lp__" , y$summary["lp__","n_eff"] )

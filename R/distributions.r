@@ -15,7 +15,7 @@ dgpareto <- function( x , u=0 , shape=1 , scale=1 , log=FALSE ) {
     } else {
         lp <- log(1/scale) - (1/shape+1) * log(1 + shape*(x-u)/scale)
     }
-    if ( log==FALSE ) lp <- exp(lp)
+    if ( !log ) lp <- exp(lp)
     return(lp)
 }
 rgpareto <- function( n , u=0 , shape=1 , scale=1 ) {
@@ -76,7 +76,7 @@ pordlogit <- function( x , phi , a , log=FALSE ) {
             p[i,] <- logistic( a[x] - phi[i] )
         }
     }
-    if ( log==TRUE ) p <- log(p)
+    if ( log ) p <- log(p)
     p
 }
 
@@ -86,7 +86,7 @@ dordlogit <- function( x , phi , a , log=FALSE ) {
     na <- c( -Inf , a )
     np <- logistic( na[x] - phi )
     p <- p - np
-    if ( log==TRUE ) p <- log(p)
+    if ( log ) p <- log(p)
     p
 }
 
@@ -190,7 +190,7 @@ dlaplace <- function(x,location=0,lambda=1,log=FALSE) {
     # f(y) = (1/(2b)) exp( -|y-a|/b )
     # l <- (1/(2*lambda))*exp( -abs(x-location)/lambda )
     ll <- -abs(x-location)/lambda - log(2*lambda)
-    if ( log==FALSE ) ll <- exp(ll)
+    if ( !log ) ll <- exp(ll)
     ll
 }
 
@@ -205,7 +205,7 @@ rlaplace <- function(n,location=0,lambda=1) {
 # onion method correlation matrix - omits normalization constant
 dlkjcorr <- function( x , eta=1 , log=TRUE ) {
     ll <- det(x)^(eta-1)
-    if ( log==TRUE ) ll <- log(ll)
+    if ( log ) ll <- log(ll)
     return(ll)
 }
 
@@ -288,7 +288,7 @@ dzipois <- function(x,p,lambda,log=FALSE) {
             ll[i] <- log(1-p_i) + dpois(x[i],lambda_i,TRUE)
         }
     }
-    if ( log==FALSE ) ll <- exp(ll)
+    if ( !log ) ll <- exp(ll)
     return(ll)
 }
 
@@ -303,7 +303,7 @@ dzagamma2 <- function(x,prob,mu,scale,log=FALSE) {
     K <- as.data.frame(cbind(x=x,prob=prob,mu=mu,scale=scale))
     llg <- dgamma( x , shape=mu/scale , scale=scale , log=TRUE )
     ll <- ifelse( K$x==0 , log(K$prob) , log(1-K$prob) + llg )
-    if ( log==FALSE ) ll <- exp(ll)
+    if ( !log ) ll <- exp(ll)
     ll
 }
 
@@ -324,7 +324,7 @@ dzibinom <- function(x,p_zero,size,prob,log=FALSE) {
             ll[i] <- log(1-pz_i) + dbinom(x[i],size_i,prob_i,TRUE)
         }
     }
-    if ( log==FALSE ) ll <- exp(ll)
+    if ( !log ) ll <- exp(ll)
     return(ll)
 }
 
@@ -343,7 +343,7 @@ rzibinom <- function(n,p_zero,size,prob) {
 # generalized normal
 dgnorm <- function( x , mu , alpha , beta , log=FALSE ) {
     ll <- log(beta) - log( 2*alpha*gamma(1/beta) ) - (abs(x-mu)/alpha)^beta
-    if ( log==FALSE ) ll <- exp(ll)
+    if ( !log ) ll <- exp(ll)
     return(ll)
 }
 
@@ -354,11 +354,11 @@ dcategorical <- function( x , prob , log=TRUE ) {
         # vectorized probability matrix
         # length of x needs to match nrow(prob)
         logp <- sapply( 1:nrow(prob) , function(i) log(prob[i,x[i]]) )
-        if ( log==FALSE ) logp <- exp(logp)
+        if ( !log ) logp <- exp(logp)
         return( logp )
     } else {
         logp <- log(prob[x])
-        if ( log==FALSE ) logp <- exp(logp)
+        if ( !log ) logp <- exp(logp)
         return(logp)
     }
 }
@@ -371,10 +371,10 @@ rcategorical <- function( n , prob ) {
 
 ### softmax rule for multinomial
 multilogistic <- function( x , lambda=1 , diff=TRUE , log=FALSE ) {
-    if ( diff==TRUE ) x <- x - min(x)
+    if ( diff ) x <- x - min(x)
     f <- exp( lambda * x )
-    if ( log==FALSE ) result <- f / sum(f)
-    if ( log==TRUE ) result <- log(f) - log(sum(f))
+    if ( !log ) result <- f / sum(f)
+    if ( log ) result <- log(f) - log(sum(f))
     result
 }
 
@@ -512,7 +512,7 @@ rmvnorm2 <- function( n , Mu=rep(0,length(sigma)) , sigma=rep(1,length(Mu)) , Rh
 dstudent <- function(x,nu=2,mu=0,sigma=1,log=FALSE) {
     #y <- gamma((nu+1)/2)/(gamma(nu/2)*sqrt(pi*nu)*sigma) * ( 1 + (1/nu)*((x-mu)/sigma)^2 )^(-(nu+1)/2)
     y <- lgamma((nu+1)/2) - lgamma(nu/2) - 0.5*log(pi*nu) - log(sigma) + (-(nu+1)/2)*log( 1 + (1/nu)*((x-mu)/sigma)^2 )
-    if ( log==FALSE ) y <- exp(y)
+    if ( !log ) y <- exp(y)
     return(y)
 }
 

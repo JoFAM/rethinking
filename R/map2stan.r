@@ -51,7 +51,7 @@ map2stan <- function( flist , data , start , pars , constraints=list() , types=l
 
     if ( class(flist) == "map" ) {
         # previous map fit, so pull out components
-        if ( verbose==TRUE ) message( "Using formula from map fit" )
+        if ( verbose ) message( "Using formula from map fit" )
         ftemp <- flist@formula
         if ( missing(data) ) data <- flist@data
         flist <- ftemp
@@ -60,7 +60,7 @@ map2stan <- function( flist , data , start , pars , constraints=list() , types=l
     previous_stanfit <- NULL
     if ( class(flist) == "map2stan" ) {
         # previous map2stan fit, so pull out components
-        if ( verbose==TRUE ) message( "Using formula from map2stan fit" )
+        if ( verbose ) message( "Using formula from map2stan fit" )
         ftemp <- flist@formula
         if ( missing(data) ) data <- flist@data
         previous_stanfit <- flist@stanfit
@@ -136,7 +136,7 @@ map2stan <- function( flist , data , start , pars , constraints=list() , types=l
         
         s <- regmatches( x=x , m=m )
         
-        if ( add.par==TRUE ) replacement <- paste( "(" , replacement , ")" , collapse="" )
+        if ( add.par ) replacement <- paste( "(" , replacement , ")" , collapse="" )
         
         if ( class(s)=="list" ) s <- s[[1]]
         w.start <- substr(s,1,1)
@@ -157,7 +157,7 @@ map2stan <- function( flist , data , start , pars , constraints=list() , types=l
         if ( m==-1 ) return( x )
         s <- regmatches( x=x , m=m )
         
-        if ( add.par==TRUE ) replacement <- paste( "(" , replacement , ")" , collapse="" )
+        if ( add.par ) replacement <- paste( "(" , replacement , ")" , collapse="" )
         
         w.start <- substr(s,1,1)
         w.end <- substr(s,nchar(s),nchar(s))
@@ -537,7 +537,7 @@ map2stan <- function( flist , data , start , pars , constraints=list() , types=l
                 }
             }
         }
-        if ( is_likelihood==TRUE ) {
+        if ( is_likelihood ) {
             lik <- extract_likelihood( flist[[i]] )
             lik$T_text <- T_text
             n <- length( fp[['likelihood']] )
@@ -660,7 +660,7 @@ map2stan <- function( flist , data , start , pars , constraints=list() , types=l
             # must be a linear model with a single symbol in it, like "p ~ a"
             is_linearmodel <- TRUE
         }
-        if ( is_linearmodel==TRUE ) {
+        if ( is_linearmodel ) {
             n <- length( fp[['lm']] )
             xlm <- extract_linearmodel( flist[[i]] )
             xlm$T_text <- T_text
@@ -682,7 +682,7 @@ map2stan <- function( flist , data , start , pars , constraints=list() , types=l
                     flag_vprior <- TRUE
                 }
             }
-            if ( flag_vprior==TRUE ) {
+            if ( flag_vprior ) {
                 n <- length( fp[['vprior']] )
                 xvp <- extract_vprior( flist[[i]] )
                 xvp$T_text <- T_text
@@ -712,7 +712,7 @@ map2stan <- function( flist , data , start , pars , constraints=list() , types=l
                     if ( fname %in% c("dmvnorm","dmvnorm2","multi_normal") )
                         flag_mvprior <- TRUE
                 }
-                if ( flag_mvprior==FALSE ) {
+                if ( !flag_mvprior ) {
                     # get list of parameters and add each as parsed prior
                     np <- length( flist[[i]][[2]] )
                     for ( j in 2:np ) {
@@ -725,7 +725,7 @@ map2stan <- function( flist , data , start , pars , constraints=list() , types=l
                         fp_order <- listappend( fp_order , list(type="prior",i=n+1) )
                     } #j
                 } # not mvprior
-                if ( flag_mvprior==TRUE ) {
+                if ( flag_mvprior ) {
                     # treat like ordinary prior
                     # template handles vector conversion in Stan code
                     # extract_prior() should preserve call structure
@@ -862,7 +862,7 @@ map2stan <- function( flist , data , start , pars , constraints=list() , types=l
         names(d)[i] <- undot(oldname)
     }
     
-    if ( debug==TRUE ) print(fp)
+    if ( debug ) print(fp)
     
     #
     ########################################
@@ -941,7 +941,7 @@ map2stan <- function( flist , data , start , pars , constraints=list() , types=l
                     if ( ndims > 0 ) {
                         for ( ch in 1:chains ) 
                             start_prior[[ch]][[ prior$par_out ]] <- diag(ndims)
-                        if ( verbose==TRUE )
+                        if ( verbose )
                             message( paste(prior$par_out,": using identity matrix as start value [",ndims,"]") )
                     } else {
                         # no vpriors parsed, so not sure what to do about lkj_corr dims
@@ -968,10 +968,10 @@ map2stan <- function( flist , data , start , pars , constraints=list() , types=l
                         for ( ch in 1:chains )
                             start_prior[[ch]][[ prior$par_out ]] <- theta[[ch]]
                         if ( ndims==1 ) {
-                            if ( verbose==TRUE )
+                            if ( verbose )
                                 message( paste(prior$par_out,": using prior to sample start value") )
                         } else {
-                            if ( verbose==TRUE ) 
+                            if ( verbose ) 
                                 message( paste(prior$par_out,": using prior to sample start values [",ndims,"]") )
                         }
                     }#no error
@@ -1005,7 +1005,7 @@ map2stan <- function( flist , data , start , pars , constraints=list() , types=l
             # Concentration of measure made it hard to move away from them in warmup
             for ( k in vprior$pars_out )
                 if ( TRUE && !( k %in% names(start) ) ) {
-                    if ( verbose==TRUE )
+                    if ( verbose )
                         message( paste(k,": start values set to zero [",N,"]") )
                     for ( ch in 1:chains )
                         start_prior[[ch]][[ k ]] <- rep(0,N)
@@ -1174,7 +1174,7 @@ map2stan <- function( flist , data , start , pars , constraints=list() , types=l
                 lm_replace_txt <- concat( inden(2) , mxtlm , "[i,mmrow] = " , lm_aliased , ";" )
 
                 # link function
-                if ( linmod$link != "identity" & linmod$use_link==TRUE ) {
+                if ( linmod$link != "identity" & linmod$use_link ) {
                     # check for valid link function
                     if ( is.null( inverse_links[[linmod$link]] ) ) {
                         stop( paste("Link function '",linmod$link,"' not recognized in formula line:\n",deparse(flist[[f_num]]),sep="") )
@@ -1219,7 +1219,7 @@ map2stan <- function( flist , data , start , pars , constraints=list() , types=l
             m_gq <- concat( m_gq , txt1 )
             
             # link function
-            if ( linmod$link != "identity" & linmod$use_link==TRUE ) {
+            if ( linmod$link != "identity" & linmod$use_link ) {
                 # check for valid link function
                 if ( is.null( inverse_links[[linmod$link]] ) ) {
                     stop( paste("Link function '",linmod$link,"' not recognized in formula line:\n",deparse(flist[[f_num]]),sep="") )
@@ -1291,11 +1291,11 @@ map2stan <- function( flist , data , start , pars , constraints=list() , types=l
             xindent <- "" # controls formatting
             
             # when function not vectorized OR a parameter has discrete missingness, must loop explicitly over [i] instead of vectorizing code
-            if ( tmplt$vectorized==FALSE || has_discrete_missingness==TRUE ) {
+            if ( !tmplt$vectorized || has_discrete_missingness ) {
                 # add loop for non-vectorized distribution
                 txt1 <- concat( indent , "for ( i in 1:" , lik$N_name , " ) {\n" )
                 m_model_txt <- concat( m_model_txt , txt1 )
-                if ( has_discrete_missingness==FALSE || do_discrete_imputation==TRUE )
+                if ( !has_discrete_missingness || do_discrete_imputation )
                     m_gq <- concat( m_gq , txt1 )
 
                 xindent <- indent
@@ -1321,11 +1321,11 @@ map2stan <- function( flist , data , start , pars , constraints=list() , types=l
             parstxt <- paste( parstxt_L , collapse=" , " )
             
             # add branching logic for case [i] with missingness
-            if ( has_discrete_missingness==TRUE ) {
+            if ( has_discrete_missingness ) {
                 txt1 <- fp[['lm']][[ lms_with_dm[[1]][[2]] ]]$misstestcode # assume just one for now
                 txt1 <- concat( inden(2) , txt1 , "\n" )
                 m_model_txt <- concat( m_model_txt , txt1 )
-                if ( do_discrete_imputation==TRUE ) m_gq <- concat( m_gq , txt1 )
+                if ( do_discrete_imputation ) m_gq <- concat( m_gq , txt1 )
                 xindent <- concat( xindent , indent )
             }
             
@@ -1349,7 +1349,7 @@ map2stan <- function( flist , data , start , pars , constraints=list() , types=l
                 }
                 # insert into Stan code
                 m_model_txt <- concat( m_model_txt , indent , code_model , "\n" )
-                if ( DIC==TRUE )
+                if ( DIC )
                     m_gq <- concat( m_gq , indent , code_gq , "\n" )
                 
             } else {
@@ -1383,7 +1383,7 @@ map2stan <- function( flist , data , start , pars , constraints=list() , types=l
                 }
                 
                 # ordinary sampling statement
-                if ( has_discrete_missingness==TRUE ) {
+                if ( has_discrete_missingness ) {
                     # loop over rows in missmatrix and build the loglik terms for each case
                     # edit pars string so it has [lm]_mxtlm in place of [lm]
                     sym <- lms_with_dm[[1]][[1]]
@@ -1402,7 +1402,7 @@ map2stan <- function( flist , data , start , pars , constraints=list() , types=l
                     # close off discrete missing branch
                     m_model_txt <- concat( m_model_txt , inden(2) , "} else \n" )
 
-                    if ( do_discrete_imputation==TRUE ) {
+                    if ( do_discrete_imputation ) {
                         # for each variable in discrete_miss_bank,
                         #  need to compute posterior probability using log probabilities in mixture
                         m_gq <- concat( m_gq , inden(3) , "for ( mmrow in 1:rows(", sym , missmatrix_suffix ,") )\n" )
@@ -1435,12 +1435,12 @@ map2stan <- function( flist , data , start , pars , constraints=list() , types=l
                 m_model_txt <- concat( m_model_txt , indent , xindent , outcome , " ~ " , lik$likelihood , "( " , parstxt , " )" , lik$T_text , ";\n" )
                 
                 # don't add deviance/log_lik calc when imputed predictor
-                if ( !(lik$outcome %in% names(impute_bank)) && (has_discrete_missingness==FALSE || log_lik==TRUE) ) {
+                if ( !(lik$outcome %in% names(impute_bank)) && (!has_discrete_missingness || log_lik) ) {
                     # get stan suffix
                     the_suffix <- templates[[lik$template]]$stan_suffix
-                    if ( DIC==TRUE )
+                    if ( DIC )
                         m_gq <- concat( m_gq , indent , xindent , "dev <- dev + (-2)*" , lik$likelihood , the_suffix , "( " , outcome , " | " , parstxt , " )" , lik$T_text , ";\n" )
-                    if ( log_lik==TRUE ) {
+                    if ( log_lik ) {
                         # check for linear model names as parameters and add [i] to each
                         if ( length(fp[['lm']])>0 ) {
                             lm_names <- c()
@@ -1456,13 +1456,13 @@ map2stan <- function( flist , data , start , pars , constraints=list() , types=l
                             parstxt_i <- paste( parstxt_i , collapse=" , " )
                         }
                         # if likelihood ordinarily vectorized, then add a loop here
-                        if ( outcome_discrete_missing==FALSE ) {
-                            if ( tmplt$vectorized==TRUE ) {
+                        if ( !outcome_discrete_missing ) {
+                            if ( tmplt$vectorized ) {
                                 m_gq <- concat( m_gq , indent , xindent , "for ( i in 1:N ) log_lik[i] = " , lik$likelihood , the_suffix , "( " , outcome , "[i] | " , parstxt_i , " )" , lik$T_text , ";\n" )
                             } else {
                             # likelihood not vectorized, so should have a loop over i already in gq code
                             # this is the case for ordered logit for example
-                                if ( do_discrete_imputation==TRUE ) {
+                                if ( do_discrete_imputation ) {
                                     # add test for discrete missingness and only calc log_lik when none for this case
                                     txt1 <- fp[['lm']][[ lms_with_dm[[1]][[2]] ]]$misstestcode
                                     m_gq <- concat( m_gq , xindent , txt1 , "\n" )
@@ -1470,7 +1470,7 @@ map2stan <- function( flist , data , start , pars , constraints=list() , types=l
                                     m_gq <- concat( m_gq , xindent, "} else {\n" )
                                 }
                                 m_gq <- concat( m_gq , indent , xindent , "log_lik[i] = " , lik$likelihood , the_suffix , "( " , outcome , " | " , parstxt_i , " )" , lik$T_text , ";\n" )
-                                if ( do_discrete_imputation==TRUE ) 
+                                if ( do_discrete_imputation ) 
                                     m_gq <- concat( m_gq , xindent, "}\n" )
                             }
                         }#outcome not discrete missing
@@ -1495,17 +1495,17 @@ map2stan <- function( flist , data , start , pars , constraints=list() , types=l
             }
 
             # close discrete missing branch
-            if ( has_discrete_missingness==TRUE ) {
+            if ( has_discrete_missingness ) {
                 txt1 <- concat( inden(2) , "}//if \n" )
                 #m_model_txt <- concat( m_model_txt , txt1 )
                 #m_gq <- concat( m_gq , txt1 )
             }
 
             # close i loop
-            if ( tmplt$vectorized==FALSE || has_discrete_missingness==TRUE ) {
+            if ( !tmplt$vectorized || has_discrete_missingness ) {
                 txt1 <- concat( indent , "}//i \n" )
                 m_model_txt <- concat( m_model_txt , txt1 )
-                if ( has_discrete_missingness==FALSE || do_discrete_imputation==TRUE )
+                if ( !has_discrete_missingness || do_discrete_imputation )
                     m_gq <- concat( m_gq , txt1 )
             }
             
@@ -1525,9 +1525,9 @@ map2stan <- function( flist , data , start , pars , constraints=list() , types=l
         d[[ "N" ]] <- as.integer( length(d[[1]]) )
     
     # compose generated quantities
-    if ( DIC==TRUE )
+    if ( DIC )
         m_gq <- concat( indent , "real dev;\n" , indent , "dev <- 0;\n" , m_gq )
-    if ( log_lik==TRUE )
+    if ( log_lik )
         m_gq <- concat( indent , "vector[N] log_lik;\n" , m_gq )
     m_gq <- concat( m_model_declare , m_gq )
     
@@ -1840,11 +1840,11 @@ map2stan <- function( flist , data , start , pars , constraints=list() , types=l
     model_code <- gsub( "<-" , "=" , model_code , fixed=TRUE )
 
     # add unique tag to model code text so that stan must recompile?
-    if ( add_unique_tag==TRUE ) {
+    if ( add_unique_tag ) {
         model_code <- concat( "//" , Sys.time() , "\n" , model_code )
     }
     
-    if ( debug==TRUE ) cat(model_code)
+    if ( debug ) cat(model_code)
 
 ##############################
 # end of Stan code compilation
@@ -1859,8 +1859,8 @@ map2stan <- function( flist , data , start , pars , constraints=list() , types=l
         pars <- names(start[[1]])
         elected <- names(pars_elect)
         pars <- c( pars , elected )
-        if ( DIC==TRUE ) pars <- c( pars , "dev" )
-        if ( log_lik==TRUE ) pars <- c( pars , "log_lik" )
+        if ( DIC ) pars <- c( pars , "dev" )
+        if ( log_lik ) pars <- c( pars , "log_lik" )
         if ( length(pars_hide)>0 ) {
             exclude_idx <- which( pars %in% names(pars_hide) )
             pars <- pars[ -exclude_idx ]
@@ -1877,7 +1877,7 @@ map2stan <- function( flist , data , start , pars , constraints=list() , types=l
         start <- start_cloned
     }
     
-    if ( sample==TRUE ) {
+    if ( sample ) {
         #require(rstan) # don't need anymore
         
         # sample
@@ -1978,13 +1978,13 @@ map2stan <- function( flist , data , start , pars , constraints=list() , types=l
     varcov <- NULL
     fp$impute_bank <- impute_bank
     fp$discrete_miss_bank <- discrete_miss_bank
-    if ( sample==TRUE ) {
+    if ( sample ) {
 
         # compute expected values of parameters
         s <- summary(fit)$summary
         s <- s[ -which( rownames(s)=="lp__" ) , ]
-        if ( DIC==TRUE ) s <- s[ -which( rownames(s)=="dev" ) , ]
-        if ( log_lik==TRUE ) s <- s[ -which( rownames(s)=="log_lik" ) , ]
+        if ( DIC ) s <- s[ -which( rownames(s)=="dev" ) , ]
+        if ( log_lik ) s <- s[ -which( rownames(s)=="log_lik" ) , ]
         if ( !is.null(dim(s)) ) {
             coef <- s[,1]
             # compute variance-covariance matrix
@@ -1997,7 +1997,7 @@ map2stan <- function( flist , data , start , pars , constraints=list() , types=l
             names(coef) <- names(start[[1]])
         }
 
-        if ( DIC==TRUE ) {
+        if ( DIC ) {
             
             # compute DIC
             dev.post <- extract(fit, "dev", permuted = TRUE, inc_warmup = FALSE)
@@ -2017,7 +2017,7 @@ map2stan <- function( flist , data , start , pars , constraints=list() , types=l
                 }
             }#i
         
-            if ( debug==TRUE ) print( Epost )
+            if ( debug ) print( Epost )
             
             # push expected values back through model and fetch deviance
             #message("Taking one more sample now, at expected values of parameters, in order to compute DIC")
@@ -2029,7 +2029,7 @@ map2stan <- function( flist , data , start , pars , constraints=list() , types=l
 
         }#DIC
         
-        # if (debug==TRUE) print(Epost)
+        # if (debug) print(Epost)
         
         # build result
         result <- new( "map2stan" , 
@@ -2047,7 +2047,7 @@ map2stan <- function( flist , data , start , pars , constraints=list() , types=l
         attr(result,"constraints") <- constraints
         
         attr(result,"df") = length(result@coef)
-        if ( DIC==TRUE ) {
+        if ( DIC ) {
             attr(result,"DIC") = dic
             attr(result,"pD") = pD
             attr(result,"deviance") = dhat
@@ -2058,7 +2058,7 @@ map2stan <- function( flist , data , start , pars , constraints=list() , types=l
         )
         
         # compute WAIC?
-        if ( WAIC==TRUE ) {
+        if ( WAIC ) {
             message("Computing WAIC")
             waic <- try(WAIC( result , n=0 , pointwise=TRUE )) # n=0 to use all available samples
             attr(result,"WAIC") = waic
@@ -2083,7 +2083,7 @@ map2stan <- function( flist , data , start , pars , constraints=list() , types=l
     }
     attr(result,"generation") <- "map2stan2018"
 
-    if ( rawstanfit==TRUE ) return(fit)
+    if ( rawstanfit ) return(fit)
     
     return( result )
     

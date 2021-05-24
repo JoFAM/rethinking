@@ -88,9 +88,9 @@ HMC_2D_sample <- function( n=100 , U , U_gradient , step , L , start=c(0,0) , xl
     xr <- xlim
     yr <- ylim
 
-    if ( draw==TRUE ) plot( NULL , xlab=xlab , ylab=ylab , xlim=xlim, ylim=ylim )
+    if ( draw ) plot( NULL , xlab=xlab , ylab=ylab , xlim=xlim, ylim=ylim )
 
-    if ( draw==TRUE & draw_contour==TRUE ) {
+    if ( draw && draw_contour ) {
         # draw contour
         zr <- 1
         y_seq <- seq(from=yr[1]-zr,to=yr[2]+zr,length.out=50) 

@@ -25,7 +25,7 @@ PSIS_map2stan <- function( object , n=0 , refresh=-1 , pointwise=FALSE , warn=TR
 
     #loo_list <- loo::loo(loglik_matrix)
 
-    if ( pointwise==TRUE ) {
+    if ( pointwise ) {
         looIC <- as.vector( loo_list$pointwise[,4] )
         lppd <- as.vector( loo_list$pointwise[,1] )
         pD <- as.vector( loo_list$pointwise[,3] )
@@ -38,7 +38,7 @@ PSIS_map2stan <- function( object , n=0 , refresh=-1 , pointwise=FALSE , warn=TR
     #attr(looIC,"pLOO") = pD
     #attr(looIC,"diagnostics") = loo_list$diagnostics
 
-    if ( warn==TRUE ) rethinking:::xcheckLOOk( loo_list$diagnostics$pareto_k )
+    if ( warn ) rethinking:::xcheckLOOk( loo_list$diagnostics$pareto_k )
     
     n_tot <- ncol(ll_matrix)
     #attr(looIC,"se") = try(sqrt( n_tot*var2(as.vector( loo_list$pointwise[,3] )) ))
@@ -49,7 +49,7 @@ PSIS_map2stan <- function( object , n=0 , refresh=-1 , pointwise=FALSE , warn=TR
         penalty=pD ,
         std_err=loo_list$estimates[3,2] )
 
-    if ( pointwise==TRUE ) {
+    if ( pointwise ) {
         result$k = loo_list$diagnostics$pareto_k
     }
     
@@ -70,7 +70,7 @@ PSIS_stanfit <- function( object , n=0 , refresh=0.1 , pointwise=FALSE , log_lik
 
     loo_list <- suppressWarnings( loo::loo( ll_matrix , r_eff = rel_n_eff ) )
 
-    if ( pointwise==TRUE ) {
+    if ( pointwise ) {
         looIC <- as.vector( loo_list$pointwise[,4] )
         lppd <- as.vector( loo_list$pointwise[,1] )
         pD <- as.vector( loo_list$pointwise[,3] )
@@ -83,7 +83,7 @@ PSIS_stanfit <- function( object , n=0 , refresh=0.1 , pointwise=FALSE , log_lik
     #attr(looIC,"pLOO") = pD
     #attr(looIC,"diagnostics") = loo_list$diagnostics
 
-    if ( warn==TRUE ) rethinking:::xcheckLOOk( loo_list$diagnostics$pareto_k )
+    if ( warn ) rethinking:::xcheckLOOk( loo_list$diagnostics$pareto_k )
     
     n_tot <- ncol(ll_matrix)
     #attr(looIC,"se") = try(sqrt( n_tot*var(as.vector( loo_list$pointwise[,4] )) ))
@@ -95,7 +95,7 @@ PSIS_stanfit <- function( object , n=0 , refresh=0.1 , pointwise=FALSE , log_lik
         penalty=pD ,
         std_err=loo_list$estimates[3,2] )
 
-    if ( pointwise==TRUE ) {
+    if ( pointwise ) {
         result$k = loo_list$diagnostics$pareto_k
     }
     
@@ -119,7 +119,7 @@ PSIS_list <- function( object , n=0 , refresh=0.1 , pointwise=FALSE , log_lik="l
 
     loo_list <- suppressWarnings( loo::loo(ll_matrix) )
 
-    if ( pointwise==TRUE ) {
+    if ( pointwise ) {
         looIC <- as.vector( loo_list$pointwise[,4] )
         lppd <- as.vector( loo_list$pointwise[,1] )
         pD <- as.vector( loo_list$pointwise[,3] )
@@ -132,7 +132,7 @@ PSIS_list <- function( object , n=0 , refresh=0.1 , pointwise=FALSE , log_lik="l
     #attr(looIC,"pLOO") = pD
     #attr(looIC,"diagnostics") = loo_list$diagnostics
 
-    if ( warn==TRUE ) rethinking:::xcheckLOOk( loo_list$diagnostics$pareto_k )
+    if ( warn ) rethinking:::xcheckLOOk( loo_list$diagnostics$pareto_k )
     
     n_tot <- ncol(ll_matrix)
     #attr(looIC,"se") = try(sqrt( n_tot*var2(as.vector( loo_list$pointwise[,3] )) ))
@@ -143,7 +143,7 @@ PSIS_list <- function( object , n=0 , refresh=0.1 , pointwise=FALSE , log_lik="l
         penalty=pD ,
         std_err=loo_list$estimates[3,2] )
 
-    if ( pointwise==TRUE ) {
+    if ( pointwise ) {
         result$k = loo_list$diagnostics$pareto_k
     }
     
@@ -159,7 +159,7 @@ PSIS_quap <- function( object , n=1000 , refresh=0 , pointwise=FALSE , warn=TRUE
     
     loo_list <- suppressWarnings( loo::loo(loglik_matrix) )
     
-    if ( pointwise==TRUE ) {
+    if ( pointwise ) {
         looIC <- as.vector( loo_list$pointwise[,4] )
         lppd <- as.vector( loo_list$pointwise[,1] )
         pD <- as.vector( loo_list$pointwise[,3] )
@@ -174,7 +174,7 @@ PSIS_quap <- function( object , n=1000 , refresh=0 , pointwise=FALSE , warn=TRUE
     #attr(looIC,"diagnostics") = loo_list$diagnostics
 
     #object_name <- deparse( match.call()[[2]] )
-    if ( warn==TRUE ) xcheckLOOk( loo_list$diagnostics$pareto_k )
+    if ( warn ) xcheckLOOk( loo_list$diagnostics$pareto_k )
     
     n_tot <- ncol(loglik_matrix)
     #attr(looIC,"se") = try(sqrt( n_tot*var2(as.vector( loo_list$pointwise[,4] )) ))
@@ -185,7 +185,7 @@ PSIS_quap <- function( object , n=1000 , refresh=0 , pointwise=FALSE , warn=TRUE
         penalty=pD ,
         std_err=loo_list$estimates[3,2] )
 
-    if ( pointwise==TRUE ) {
+    if ( pointwise ) {
         result$k = loo_list$diagnostics$pareto_k
     }
 

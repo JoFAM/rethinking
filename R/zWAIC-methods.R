@@ -28,7 +28,7 @@ function( object , n=0 , refresh=0 , pointwise=FALSE , log_lik="log_lik" , ... )
     }
 
     waic_vec <- (-2)*( lpd - pD )
-    if ( pointwise==FALSE ) {
+    if ( !pointwise ) {
         waic <- sum(waic_vec)
         lpd <- sum(lpd)
         pD <- sum(pD)
@@ -67,7 +67,7 @@ function( object , n=0 , refresh=0 , pointwise=FALSE , log_lik="log_lik" , ... )
     }
 
     waic_vec <- (-2)*( lpd - pD )
-    if ( pointwise==FALSE ) {
+    if ( !pointwise ) {
         waic <- sum(waic_vec)
         lpd <- sum(lpd)
         pD <- sum(pD)
@@ -108,7 +108,7 @@ function( object , n=0 , refresh=0 , pointwise=FALSE , log_lik="log_lik" , ... )
     }
 
     waic_vec <- (-2)*( lpd - pD )
-    if ( pointwise==FALSE ) {
+    if ( !pointwise ) {
         waic <- sum(waic_vec)
         lpd <- sum(lpd)
         pD <- sum(pD)
@@ -144,11 +144,11 @@ function( object , log_lik="log_lik" , ... ) {
 setMethod("WAIC", "map2stan",
 function( object , n=0 , refresh=0 , pointwise=FALSE , loglik=FALSE , ... ) {
     
-    if ( !is.null(attr(object,"WAIC")) & loglik==FALSE ) {
+    if ( !is.null(attr(object,"WAIC")) & !loglik ) {
         # already have it stored in object, so just return it
         old_waic <- attr(object,"WAIC")
         if ( nrow(old_waic) > 1 ) {
-            if ( pointwise==FALSE ) {
+            if ( !pointwise ) {
                 #new_waic <- sum(old_waic)
                 #attr(new_waic,"lppd") <- sum(unlist(attr(old_waic,"lppd")))
                 #attr(new_waic,"pWAIC") <- sum(unlist(attr(old_waic,"pWAIC")))
@@ -165,7 +165,7 @@ function( object , n=0 , refresh=0 , pointwise=FALSE , loglik=FALSE , ... ) {
             }
         } else {
             # old waic not pointwise
-            if ( pointwise==FALSE ) return( old_waic )
+            if ( !pointwise ) return( old_waic )
         }
     }
 
@@ -175,7 +175,7 @@ function( object , n=0 , refresh=0 , pointwise=FALSE , loglik=FALSE , ... ) {
 
     # check for log_lik matrix in samples --- if found, use it instead
     if ( !is.null(post[["log_lik"]]) ) {
-        if ( loglik==TRUE ) {
+        if ( loglik ) {
             # need log_lik matrix (possibly to pass to LOO)
             return( post[["log_lik"]] )
         } else { 
@@ -235,7 +235,7 @@ function( object , n=0 , refresh=0 , pointwise=FALSE , loglik=FALSE , ... ) {
             if ( is.numeric(pars[[1]]) )
                 if ( pars[[1]]>1 ) flag_aggregated_binomial <- TRUE
         }
-        if ( flag_aggregated_binomial==TRUE) {
+        if ( flag_aggregated_binomial) {
             if ( refresh > 0 )
                 message("Aggregated binomial counts detected. Splitting to 0/1 outcome for WAIC calculation.")
         }
@@ -243,7 +243,7 @@ function( object , n=0 , refresh=0 , pointwise=FALSE , loglik=FALSE , ... ) {
         #ignition
         n_obs <- liks[[k]]$N_cases
         # vector of components so can compute std err later
-        if ( flag_aggregated_binomial==FALSE ) {
+        if ( !flag_aggregated_binomial ) {
             lppd_vec[[k]] <- rep(NA,n_obs)
             pD_vec[[k]] <- rep(NA,n_obs)
         } else {
@@ -320,7 +320,7 @@ function( object , n=0 , refresh=0 , pointwise=FALSE , loglik=FALSE , ... ) {
                 assign( names(e)[j] , e[[j]] , envir=e1 )
             }
             
-            if ( flag_aggregated_binomial==FALSE ) {
+            if ( !flag_aggregated_binomial ) {
                 args_list <- list( as.symbol(outcome) , pars , log=TRUE )
                 args_list <- unlist( args_list , recursive=FALSE )
                 if ( dname=="dordlogit" ) {
@@ -371,13 +371,13 @@ function( object , n=0 , refresh=0 , pointwise=FALSE , loglik=FALSE , ... ) {
             }#flag_aggregated_binomial
 
             # store log lik vector
-            if ( loglik==TRUE ) ll_matrix[[k]][,i] <- ll
+            if ( loglik ) ll_matrix[[k]][,i] <- ll
             
         }#i - cases
     }#k - linear models
     
     waic_vec <- (-2)*( unlist(lppd_vec) - unlist(pD_vec) )
-    if ( pointwise==TRUE ) {
+    if ( pointwise ) {
         waic <- unlist(waic_vec)
         lppd <- unlist(lppd_vec)
         pD <- unlist(pD_vec)
@@ -396,7 +396,7 @@ function( object , n=0 , refresh=0 , pointwise=FALSE , loglik=FALSE , ... ) {
         penalty=pD ,
         std_err=try(sqrt( n_tot*var2(waic_vec) )) )
     
-    if ( loglik==FALSE )
+    if ( !loglik )
         return(result)
     else {
         if ( length(ll_matrix)==1 ) ll_matrix <- ll_matrix[[1]]
@@ -414,7 +414,7 @@ function( object , n=1000 , refresh=0 , pointwise=FALSE , post , ... ) {
     if ( !is.null(attr(object,"WAIC")) ) {
         # already have it stored in object, so just return it
         old_waic <- attr(object,"WAIC")
-        if ( pointwise==TRUE ) {
+        if ( pointwise ) {
             if ( length(old_waic)>1 ) {
                 # already have pointwise version, so return it
                 return( old_waic )
@@ -461,7 +461,7 @@ function( object , n=1000 , refresh=0 , pointwise=FALSE , post , ... ) {
     }#i - cases
     
     waic_vec <- (-2)*( lppd_vec - pD_vec )
-    if ( pointwise==TRUE ) {
+    if ( pointwise ) {
         # return decomposed as WAIC for each observation i --- can sum to get total WAIC
         # this is useful for computing standard errors of differences with compare()
         waic <- (-2)*( lppd_vec - pD_vec )
@@ -525,7 +525,7 @@ function( object , n=1000 , refresh=0.1 , pointwise=FALSE , ... ) {
     }#i - cases
     
     waic_vec <- (-2)*( lppd_vec - pD_vec )
-    if ( pointwise==TRUE ) {
+    if ( pointwise ) {
         # return decomposed as WAIC for each observation i --- can sum to get total WAIC
         # this is useful for computing standard errors of differences with compare()
         waic <- (-2)*( lppd_vec - pD_vec )

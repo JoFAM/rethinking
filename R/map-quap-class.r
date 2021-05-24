@@ -96,7 +96,7 @@ function( object , n=10000 , clean=TRUE , ... ) {
         mu <- xcoef(object)
     }
     result <- as.data.frame( mvrnorm( n=n , mu=mu , Sigma=vcov(object) ) )
-    if ( clean==TRUE ) {
+    if ( clean ) {
         # convert (Intercept) to Intercept
         for ( i in 1:ncol(result) ) {
             if ( colnames(result)[i] == "(Intercept)" ) {

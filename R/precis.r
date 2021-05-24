@@ -41,12 +41,12 @@ precis_plot <- function( x , y , pars , col.ci="black" , xlab="Value" , add=FALS
     set_nice_margins()
     labels <- labels[n:1]
     if ( is.null(xlim) ) xlim <- c(min(left),max(right))
-    if ( add==FALSE )
+    if ( !add )
         dotchart( mu , labels=labels , xlab=xlab , xlim=xlim , ... )
     else
         points( mu[n:1] , n:1 , ... )
     for ( i in 1:length(mu) ) lines( c(left[i],right[i]) , c(i,i) , lwd=2 , col=col.ci )
-    if ( add==FALSE ) abline( v=0 , lty=1 , col=col.alpha("black",0.15) )
+    if ( !add ) abline( v=0 , lty=1 , col=col.alpha("black",0.15) )
 }
 setMethod( "plot" , "precis" , function(x,y,...) precis_plot(x,y,...) )
 
@@ -64,7 +64,7 @@ postlistprecis <- function( post , prob=0.95 , spark=FALSE ) {
         dims <- dim( post[[k]] )
         if ( length(dims)==1 ) {
             # single parameter
-            if ( spark==FALSE ) {
+            if ( !spark ) {
                 hpd <- as.numeric( HPDI( post[[k]] , prob=prob ) )
                 result[r,] <- c( mean(post[[k]]) , sd(post[[k]]) , hpd[1] , hpd[2] )
             } else {
@@ -81,7 +81,7 @@ postlistprecis <- function( post , prob=0.95 , spark=FALSE ) {
             # vector of parameters
             # loop over
             for ( i in 1:dims[2] ) {
-                if ( spark==FALSE ) {
+                if ( !spark ) {
                     hpd <- as.numeric( HPDI( post[[k]][,i] , prob=prob ) )
                     result[r,] <- c( mean(post[[k]][,i]) , sd(post[[k]][,i]) , hpd[1] , hpd[2] )
                 } else {
@@ -98,7 +98,7 @@ postlistprecis <- function( post , prob=0.95 , spark=FALSE ) {
             # matrix of parameters
             for ( i in 1:dims[2] ) {
                 for ( j in 1:dims[3] ) {
-                    if ( spark==FALSE ) {
+                    if ( !spark ) {
                         hpd <- as.numeric( HPDI( post[[k]][,i,j] , prob=prob ) )
                         result[r,] <- c( mean(post[[k]][,i,j]) , sd(post[[k]][,i,j]) , hpd[1] , hpd[2] )
                     } else {
@@ -113,7 +113,7 @@ postlistprecis <- function( post , prob=0.95 , spark=FALSE ) {
             }
         }
     }
-    if ( spark==FALSE )
+    if ( !spark )
         colnames(result)[3:4] <- c(paste("lower", prob), paste("upper", prob))
     result
 }
@@ -178,7 +178,7 @@ function( object , depth=1 , pars , prob=0.89 , digits=2 , sort=NULL , decreasin
             object[[i]] <- as.numeric( rep( NA , nrow(object) ) )
         }
     }
-    if ( hist==TRUE ) {
+    if ( hist ) {
         result <- data.frame(
             mean = apply(object,2,mean,na.rm=TRUE),
             sd = apply(object,2,sd,na.rm=TRUE),
@@ -347,12 +347,12 @@ precisx <- function( model , depth=1 , pars , ci=TRUE , prob=0.89 , corr=FALSE ,
     if ( any( precis.whitelist$class==the.class ) ) found.class <- TRUE
     if ( the.class=="list" )
         if ( class( model[[1]] ) != "mcarray" ) found.class <- FALSE
-    if ( found.class==TRUE ) {
+    if ( found.class ) {
         est <- xcoef( model )
         se <- xse( model )
-        if ( corr==TRUE ) Rho <- xrho( model )
+        if ( corr ) Rho <- xrho( model )
     }
-    if ( found.class==FALSE ) {
+    if ( !found.class ) {
         message( paste("No handler found for model of class",the.class) )
         return(invisible())
     }
@@ -362,7 +362,7 @@ precisx <- function( model , depth=1 , pars , ci=TRUE , prob=0.89 , corr=FALSE ,
     fname <- concat( toupper(substring(fname,1,1)) , substring(fname,2) )
     result <- data.frame( est=est , se=se )
     colnames(result) <- c( fname ,"StdDev")
-    if ( ci==TRUE ) {
+    if ( ci ) {
         ci <- confint_quad( est=est , se=se , prob=prob )
         if ( the.class=="data.frame" ) {
             # HPDI from samples
@@ -400,15 +400,15 @@ precisx <- function( model , depth=1 , pars , ci=TRUE , prob=0.89 , corr=FALSE ,
         
         # check divergent iterations
         nd <- divergent(model)
-        if ( nd > 0 & warn==TRUE ) {
+        if ( nd > 0 & warn ) {
             warning( concat("There were ",nd," divergent iterations during sampling.\nCheck the chains (trace plots, n_eff, Rhat) carefully to ensure they are valid.") )
         }
     }
-    if ( corr==TRUE ) {
+    if ( corr ) {
         result <- cbind( result , Rho )
     }
     
-    #if ( type.s==TRUE )
+    #if ( type.s )
     #    result[,"Pr(S)"] <- format.pval( type.s( est , se ) )
         
     if ( precis.whitelist$vcov.method[ precis.whitelist$class==the.class ]=="vcov.VarCorr" ) {

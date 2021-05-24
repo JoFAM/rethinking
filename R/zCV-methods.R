@@ -57,7 +57,7 @@ cv_quap <- function( quap_model , lno=1 , pw=FALSE , cores=1 , ... ) {
     }
     lppd_list <- mclapply( 1:m , function(i) lppd( mlist[[i]] , data=leave_out[[i]] , mc.cores=cores ,  mc.allow.recursive=TRUE ) )
     if ( lno==1 ) lppd_list <- unlist( lppd_list )
-    if ( pw==FALSE ) lppd_list <- sum( unlist(lppd_list) )
+    if ( !pw ) lppd_list <- sum( unlist(lppd_list) )
     # result
     return( lppd_list )
 }

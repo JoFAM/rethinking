@@ -39,7 +39,7 @@ graphdag <- function( x ,
     if ( length(unobs_vars)>0 ) {
         for ( uv in unobs_vars ) the_shapes[ which(the_vars==uv) ] <- "circle"
     }
-    if ( interact==FALSE ) {
+    if ( !interact ) {
         if ( class(layout)!="matrix" )
             the_layout <- do.call( layout , list(mgraph) )
         else
@@ -109,7 +109,7 @@ sketchdag <- function( x , cleanup=1 , plot=TRUE , rescale=FALSE , grid=0.2 , ..
     rownames(pts) <- the_vars
     colnames(pts) <- c("x-coord","y-coord")
     if ( cleanup != FALSE ) pts <- round( pts , cleanup )
-    if ( plot==TRUE )
+    if ( plot )
         return(graphdag(x,layout=pts,...))
     else
         return(pts)

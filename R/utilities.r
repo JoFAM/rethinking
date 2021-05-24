@@ -47,7 +47,7 @@ progbar <- function( current , min=0 , max=100 , starttime , update.interval=100
     if ( etahours==0 & etamins>0 ) ETAstring <- paste( etamins , "m " , sep="" )
     if ( etahours==0 & etamins==0 ) ETAstring <- paste( etasecs , "s " , sep="" )
     Ratestring <- ""
-    if ( show.rate==TRUE ) Ratestring <- paste( " | Rate: " , round(rate,2) , " samples/sec" , sep="" )
+    if ( show.rate ) Ratestring <- paste( " | Rate: " , round(rate,2) , " samples/sec" , sep="" )
     cat( "\r" )
     cat( paste( c( current , "/" , max , " (" , percentdone , "%) | Elapsed: " , round(time.elapsed,2) , elapsed.units , " | Remaining: " , ETAstring , Ratestring ) , collapse="" ) )
     #cat( paste( c( current , "/" , max , " (" , percentdone , "%) | Elapsed: " , round(time.elapsed,2) , elapsed.units , " | Remaining: " , etahours , "hrs " , etamins , "mins " , etasecs , "secs | Rate: " , round(rate,2) , " samples/sec    " ) , collapse="" ) )
@@ -163,7 +163,7 @@ confint_quad <- function( model=NULL , est , se , prob=0.89 ) {
             se <- summary(model)@coef[,2]
             found.class <- TRUE
         }
-        if ( found.class==FALSE ) {
+        if ( !found.class ) {
             return( paste("Cannot find handler for model of class",class(model)) )
         }
     }
@@ -326,7 +326,7 @@ make_ukey <- function( n , m=5 , x=2 ,
         while( !good ) {
             yn <- genkey()
             f <- checkkey( yn , y[ !is.na(y) ] )
-            if ( f==TRUE ) {
+            if ( f ) {
                 y[i] <- yn
                 good <- TRUE
             }

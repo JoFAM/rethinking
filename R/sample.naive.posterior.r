@@ -45,7 +45,7 @@ sample.qa.posterior <- function( model , n=10000 , clean.names=TRUE , model.weig
         }
         
         # compute from metric
-        if ( use.custom==FALSE ) {
+        if ( !use.custom ) {
             if ( model.weights=="AIC" ) factors <- sapply( model , AIC )
             if ( nobs==0 ) {
                 if ( model.weights=="AICc" ) factors <- sapply( model , AICc )
@@ -73,7 +73,7 @@ sample.qa.posterior <- function( model , n=10000 , clean.names=TRUE , model.weig
                 sim.post[[i]] <- sample.qa.posterior( model[[i]] , n=max(nn[i],2) )
             }
         }
-        if ( f.zeros==TRUE ) {
+        if ( f.zeros ) {
             warning( "One or more models produced zero samples, because of very low posterior probability." )
         }
         # new algorithm
@@ -118,7 +118,7 @@ sample.qa.posterior <- function( model , n=10000 , clean.names=TRUE , model.weig
         }
         if ( !is.logical(fill.na) )
             post.avg[is.na(post.avg)] <- fill.na
-        if ( add.names==TRUE ) {
+        if ( add.names ) {
             mnames <- match.call()
             mnames <- as.character(mnames[[2]])[2:(length(model)+1)]
             rnames <- rep( mnames , times=nn )
@@ -134,7 +134,7 @@ sample.qa.posterior <- function( model , n=10000 , clean.names=TRUE , model.weig
             mu <- xcoef(model)
         }
         result <- as.data.frame( mvrnorm( n=n , mu=mu , Sigma=vcov(model) ) )
-        if ( clean.names==TRUE ) {
+        if ( clean.names ) {
             # convert (Intercept) to Intercept
             for ( i in 1:ncol(result) ) {
                 if ( colnames(result)[i] == "(Intercept)" ) {
