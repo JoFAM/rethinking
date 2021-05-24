@@ -1,19 +1,29 @@
-# compare
-
-# compare class definition and show method
-setClass( "compareIC" , slots=c( dSE="matrix" ) , contains="data.frame" )
-
-#compare.show <- function( object ) {
-#    r <- format_show( object@output , #digits=c('default__'=1,'weight'=2,'SE'=2,'dSE'=2) )
-#    print( r )
-#}
-setMethod( "show" , "compareIC" , function(object) {
-    r <- format_show( object , 
-                      digits=c('default__'=1,'weight'=2,'SE'=2,'dSE'=2) )
-    print( r )
-} )
-
-# new compare function, defaulting to WAIC
+#' Compare fit models using WAIC or DIC
+#' 
+#' Returns a table of model comparison statistics, by default 
+#' focused on WAIC.
+#' 
+#' This function computes WAIC and optionally DIC values for fit models and returns a table sorted by ascending values. Each row in this table is a model, and the various columns provide WAIC, effective numbers of parameters, model weights, and standard errors.
+#'
+#' A \code{plot} method is supported, for graphic display of the information criteria.
+#' 
+#' @param ... A series of fit models, separated by commas.
+#' @param n Number of samples from posterior to use in computing WAIC/DIC.
+#' @param sort Sort table by ascending values in named column.
+#' @param func Function to use in compting criteria for comparison.
+#' @param WAIC Deprecated: If \code{TRUE}, uses \code{func} for comparison. If \code{FALSE}, uses DIC.
+#' @param refresh Progress display update interval. 0 suppresses display.
+#' @param dev Vector of values to use in computing model weights.
+#' 
+#' @return An object of class \code{compareIC} with slots \code{.Data} (table of results) and \code{dSE} (matrix of standard errors of differences in IC between pairs of models)
+#' 
+#' @author Richard McElreath
+#' 
+#' @include compareIC-class.R aa_generics.r
+#' 
+#' @rdname compare
+#' @name compare
+#' @export
 compare <- function( ... , n=1e3 , sort="WAIC" , func=WAIC , WAIC=TRUE , refresh=0 , warn=TRUE , result_order=c(1,5,3,6,2,4) ) {
 
     # retrieve list of models
@@ -123,6 +133,16 @@ compare <- function( ... , n=1e3 , sort="WAIC" , func=WAIC , WAIC=TRUE , refresh
 }
 
 # plot method for compareIC results shows deviance in and expected deviance out of sample, for each model, ordered top-to-bottom by rank
+
+#' @param x an object of type \code{compareIC} (output of \code{compare})
+#' @param y not used, only for compatibility with \code{plot()}.
+#' @param xlim the limits for the X axis
+#' @param SE if \code{TRUE}, plots standard errors
+#' @param dSE if \code{TRUE}, plots standard errors of differences.
+#' @param weights if \code{TRUE}, convert estimated D_test values to weights.
+#' 
+#' @rdname compare
+#' @aliases compare.plot
 setMethod("plot" , "compareIC" , function(x,y,xlim,SE=TRUE,dSE=TRUE,weights=FALSE,...) {
     dev_in <- x[[1]] - x[[5]]*2 # criterion - penalty*2
     dev_out <- x[[1]]
@@ -171,97 +191,11 @@ setMethod("plot" , "compareIC" , function(x,y,xlim,SE=TRUE,dSE=TRUE,weights=FALS
     }
 })
 
-if ( FALSE ) {
-# AICc/BIC model comparison table
-compare_old <- function( ... , nobs=NULL , sort="AICc" , BIC=FALSE , DIC=FALSE , delta=TRUE , DICsamples=1e4 ) {
-    require(bbmle)
-    
-    if ( is.null(nobs) ) {
-        stop( "Must specify number of observations (nobs)." )
-    }
-    
-    getdf <- function(x) {
-        if (!is.null(df <- attr(x, "df"))) 
-            return(df)
-        else if (!is.null(df <- attr(logLik(x), "df"))) 
-            return(df)
-    }
-    
-    # need own BIC, as one in stats doesn't allow nobs
-    myBIC <- function(x,nobs) {
-        k <- getdf(x)
-        as.numeric( -2*logLik(x) + log(nobs)*k )
-    }
-    
-    # retrieve list of models
-    L <- list(...)
-    if ( is.list(L[[1]]) && length(L)==1 )
-        L <- L[[1]]
-    
-    # retrieve model names from function call
-    mnames <- match.call()
-    mnames <- as.character(mnames)[2:(length(L)+1)]
-    
-    AICc.list <- sapply( L , function(z) AICc( z , nobs=nobs ) )
-    dAICc <- AICc.list - min( AICc.list )
-    post.AICc <- exp( -0.5*dAICc ) / sum( exp(-0.5*dAICc) )
-    if ( BIC ) {
-        BIC.list <- sapply( L , function(z) myBIC( z , nobs=nobs ) )
-        dBIC <- BIC.list - min( BIC.list )
-        post.BIC <- exp( -0.5*dBIC ) / sum( exp(-0.5*dBIC) )
-    }
-    
-    k <- sapply( L , getdf )
-    
-    result <- data.frame( k=k , AICc=AICc.list , w.AICc=post.AICc )
-    if ( BIC ) 
-        result <- data.frame( k=k , AICc=AICc.list , BIC=BIC.list , w.AICc=post.AICc , w.BIC=post.BIC )
 
-    if ( delta ) {
-        r2 <- data.frame( dAICc=dAICc )
-        if ( BIC ) r2 <- data.frame( dAICc=dAICc , dBIC=dBIC )
-        result <- cbind( result , r2 )
-    }
 
-    # DIC from quadratic approx posterior defined by vcov and coef
-    if ( DIC ) {
-        DIC.list <- rep( NA , length(L) )
-        pD.list <- rep( NA , length(L) )
-        for ( i in 1:length(L) ) {
-            m <- L[[i]]
-            if ( class(m)=="map" ) {
-                post <- sample.qa.posterior( m , n=DICsamples )
-                message( paste("Computing DIC for model",mnames[i]) )
-                dev <- sapply( 1:nrow(post) , 
-                    function(i) {
-                        p <- post[i,]
-                        names(p) <- names(post)
-                        2*m@fminuslogl( p ) 
-                    }
-                )
-                dev.hat <- deviance(m)
-                DIC.list[i] <- dev.hat + 2*( mean(dev) - dev.hat )
-                pD.list[i] <- ( DIC.list[i] - dev.hat )/2
-            }
-        }
-        ddic <- DIC.list - min(DIC.list)
-        wdic <- exp( -0.5*ddic ) / sum( exp(-0.5*ddic) )
-        rdic <- data.frame( DIC=as.numeric(DIC.list) , pD=pD.list , wDIC=wdic , dDIC=ddic )
-        result <- cbind( result , rdic )
-    }
-
-    # add model names to rows
-    rownames( result ) <- mnames
-    
-    if ( !is.null(sort) ) {
-        result <- result[ order( result[[sort]] ) , ]
-    }
-    
-    new( "compareIC" , output=result )
-}
-}#FALSE
-
-# convert estimated D_test values to weights
+#' @rdname compare
+#' @aliases ICweights
+#' @export
 ICweights <- function( dev ) {
     d <- dev - min(dev)
     f <- exp(-0.5*d)
@@ -269,139 +203,107 @@ ICweights <- function( dev ) {
     return(w)
 }
 
-# tests
-if (FALSE) {
+#' @rdname compare
+#' @param object an object of class \code{compareIC}
+#' @return for \code{dSE} the dSE matrix.
+#' @aliases dSE
+setMethod("dSE",
+          "compareIC",
+          function(object){
+              object@dSE
+          })
 
-library(rethinking)
-data(chimpanzees)
+# REMOVED: the tests. They're now in the file
+# tests/rethinking_tests/compare_tests.R
 
-d <- list( 
-    pulled_left = chimpanzees$pulled_left ,
-    prosoc_left = chimpanzees$prosoc_left ,
-    condition = chimpanzees$condition ,
-    actor = as.integer( chimpanzees$actor )
-)
-
-m0 <- map(
-    alist(
-        pulled_left ~ dbinom(1,theta),
-        logit(theta) <- a,
-        a ~ dnorm(0,1)
-    ) ,
-    data=d,
-    start=list(a=0)
-)
-
-m1 <- map(
-    alist(
-        pulled_left ~ dbinom(1,theta),
-        logit(theta) <- a + bp*prosoc_left,
-        a ~ dnorm(0,1),
-        bp ~ dnorm(0,1)
-    ) ,
-    data=d,
-    start=list(a=0,bp=0)
-)
-
-m2 <- map(
-    alist(
-        pulled_left ~ dbinom(1,theta),
-        logit(theta) <- a + bp*prosoc_left + bpc*condition*prosoc_left,
-        a ~ dnorm(0,1),
-        bp ~ dnorm(0,1),
-        bpc ~ dnorm(0,1)
-    ) ,
-    data=d,
-    start=list(a=0,bp=0,bpc=0)
-)
-
-m3 <- map(
-    alist(
-        pulled_left ~ dbinom(1,theta),
-        logit(theta) <- a + bp*prosoc_left + bc*condition + bpc*condition*prosoc_left,
-        a ~ dnorm(0,1),
-        bp ~ dnorm(0,1),
-        bc ~ dnorm(0,1),
-        bpc ~ dnorm(0,1)
-    ) ,
-    data=d,
-    start=list(a=0,bp=0,bc=0,bpc=0)
-)
-
-( x <- compare(m0,m1,m2,m3) )
-
-plot(x)
-
-# now map2stan
-
-m0 <- map2stan(
-    alist(
-        pulled_left ~ dbinom(1,theta),
-        logit(theta) <- a,
-        a ~ dnorm(0,1)
-    ) ,
-    data=d,
-    start=list(a=0)
-)
-
-m1 <- map2stan(
-    alist(
-        pulled_left ~ dbinom(1,theta),
-        logit(theta) <- a + bp*prosoc_left,
-        a ~ dnorm(0,1),
-        bp ~ dnorm(0,1)
-    ) ,
-    data=d,
-    start=list(a=0,bp=0)
-)
-
-m2 <- map2stan(
-    alist(
-        pulled_left ~ dbinom(1,theta),
-        logit(theta) <- a + bp*prosoc_left + bpc*condition*prosoc_left,
-        a ~ dnorm(0,1),
-        bp ~ dnorm(0,1),
-        bpc ~ dnorm(0,1)
-    ) ,
-    data=d,
-    start=list(a=0,bp=0,bpc=0)
-)
-
-m3 <- map2stan(
-    alist(
-        pulled_left ~ dbinom(1,theta),
-        logit(theta) <- a + bp*prosoc_left + bc*condition + bpc*condition*prosoc_left,
-        a ~ dnorm(0,1),
-        bp ~ dnorm(0,1),
-        bc ~ dnorm(0,1),
-        bpc ~ dnorm(0,1)
-    ) ,
-    data=d,
-    start=list(a=0,bp=0,bc=0,bpc=0)
-)
-
-m4 <- map2stan(
-    alist(
-        pulled_left ~ dbinom(1,theta),
-        logit(theta) <- a + aj + bp*prosoc_left + bc*condition + bpc*condition*prosoc_left,
-        a ~ dnorm(0,1),
-        aj[actor] ~ dnorm(0,sigma_actor),
-        bp ~ dnorm(0,1),
-        bc ~ dnorm(0,1),
-        bpc ~ dnorm(0,1),
-        sigma_actor ~ dcauchy(0,1)
-    ) ,
-    data=d,
-    start=list(a=0,bp=0,bc=0,bpc=0,sigma_actor=1,aj=rep(0,7))
-)
-
-( x1 <- compare(m0,m1,m2,m3,m4,WAIC=FALSE) )
-
-( x2 <- compare(m0,m1,m2,m3,m4,WAIC=TRUE) )
-
-plot(x1)
-
-plot(x2)
-
-
-}
+# This code is never carried out. 
+# TO DO: Is commented out, but should be removed actually.
+# if ( FALSE ) {
+#     # AICc/BIC model comparison table
+#     compare_old <- function( ... , nobs=NULL , sort="AICc" , BIC=FALSE , DIC=FALSE , delta=TRUE , DICsamples=1e4 ) {
+#         require(bbmle)
+#         
+#         if ( is.null(nobs) ) {
+#             stop( "Must specify number of observations (nobs)." )
+#         }
+#         
+#         getdf <- function(x) {
+#             if (!is.null(df <- attr(x, "df"))) 
+#                 return(df)
+#             else if (!is.null(df <- attr(logLik(x), "df"))) 
+#                 return(df)
+#         }
+#         
+#         # need own BIC, as one in stats doesn't allow nobs
+#         myBIC <- function(x,nobs) {
+#             k <- getdf(x)
+#             as.numeric( -2*logLik(x) + log(nobs)*k )
+#         }
+#         
+#         # retrieve list of models
+#         L <- list(...)
+#         if ( is.list(L[[1]]) && length(L)==1 )
+#             L <- L[[1]]
+#         
+#         # retrieve model names from function call
+#         mnames <- match.call()
+#         mnames <- as.character(mnames)[2:(length(L)+1)]
+#         
+#         AICc.list <- sapply( L , function(z) AICc( z , nobs=nobs ) )
+#         dAICc <- AICc.list - min( AICc.list )
+#         post.AICc <- exp( -0.5*dAICc ) / sum( exp(-0.5*dAICc) )
+#         if ( BIC ) {
+#             BIC.list <- sapply( L , function(z) myBIC( z , nobs=nobs ) )
+#             dBIC <- BIC.list - min( BIC.list )
+#             post.BIC <- exp( -0.5*dBIC ) / sum( exp(-0.5*dBIC) )
+#         }
+#         
+#         k <- sapply( L , getdf )
+#         
+#         result <- data.frame( k=k , AICc=AICc.list , w.AICc=post.AICc )
+#         if ( BIC ) 
+#             result <- data.frame( k=k , AICc=AICc.list , BIC=BIC.list , w.AICc=post.AICc , w.BIC=post.BIC )
+#         
+#         if ( delta ) {
+#             r2 <- data.frame( dAICc=dAICc )
+#             if ( BIC ) r2 <- data.frame( dAICc=dAICc , dBIC=dBIC )
+#             result <- cbind( result , r2 )
+#         }
+#         
+#         # DIC from quadratic approx posterior defined by vcov and coef
+#         if ( DIC ) {
+#             DIC.list <- rep( NA , length(L) )
+#             pD.list <- rep( NA , length(L) )
+#             for ( i in 1:length(L) ) {
+#                 m <- L[[i]]
+#                 if ( class(m)=="map" ) {
+#                     post <- sample.qa.posterior( m , n=DICsamples )
+#                     message( paste("Computing DIC for model",mnames[i]) )
+#                     dev <- sapply( 1:nrow(post) , 
+#                                    function(i) {
+#                                        p <- post[i,]
+#                                        names(p) <- names(post)
+#                                        2*m@fminuslogl( p ) 
+#                                    }
+#                     )
+#                     dev.hat <- deviance(m)
+#                     DIC.list[i] <- dev.hat + 2*( mean(dev) - dev.hat )
+#                     pD.list[i] <- ( DIC.list[i] - dev.hat )/2
+#                 }
+#             }
+#             ddic <- DIC.list - min(DIC.list)
+#             wdic <- exp( -0.5*ddic ) / sum( exp(-0.5*ddic) )
+#             rdic <- data.frame( DIC=as.numeric(DIC.list) , pD=pD.list , wDIC=wdic , dDIC=ddic )
+#             result <- cbind( result , rdic )
+#         }
+#         
+#         # add model names to rows
+#         rownames( result ) <- mnames
+#         
+#         if ( !is.null(sort) ) {
+#             result <- result[ order( result[[sort]] ) , ]
+#         }
+#         
+#         new( "compareIC" , output=result )
+#     }
+# }#FALSE

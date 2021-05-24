@@ -1,3 +1,4 @@
+# Generics for existing functions
 if (!isGeneric("plot"))
       setGeneric("plot", function(x, y, ...) standardGeneric("plot"))
 
@@ -21,6 +22,10 @@ if (!isGeneric("AIC"))
 
 if (!isGeneric("pairs"))
       setGeneric("pairs", function(x, ...) standardGeneric("pairs"))
+
+# Specific generics
+setGeneric("dSE",
+           function(object, ...) standardGeneric("dSE"))
 
 setGeneric("link",
 function( fit , data , n=1000 , ... ) {
