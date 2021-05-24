@@ -13,6 +13,6 @@ None
 
 None
 
-## rethinking 2.13 and earlier
+## rethinking 2.13 
 
-See github.com/rmcelreath/rethinking for a complete list of changes.
+See github.com/rmcelreath/rethinking for a complete list of changes for this and earlier versions.
