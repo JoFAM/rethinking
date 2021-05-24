@@ -88,7 +88,6 @@ setMethod("plot", "map" , function( x , ... ) {
 
 setGeneric("extract.samples",
 function( object , n=10000 , clean=TRUE , ... ) {
-    #require(MASS)
     mu <- 0
     if ( class(object)[1] %in% c("mer","bmer","glmerMod","lmerMod") ) {
         mu <- fixef(object)
@@ -110,7 +109,6 @@ function( object , n=10000 , clean=TRUE , ... ) {
 
 setMethod("extract.samples", "map",
 function(object,n=1e4,...){
-    # require(MASS) # import now, so no need to require?
     mu <- object@coef
     result <- as.data.frame( mvrnorm( n=n , mu=mu , Sigma=vcov(object) ) )
     # convert vector parameters to vectors in list

@@ -221,7 +221,7 @@ setMethod("dSE",
 # if ( FALSE ) {
 #     # AICc/BIC model comparison table
 #     compare_old <- function( ... , nobs=NULL , sort="AICc" , BIC=FALSE , DIC=FALSE , delta=TRUE , DICsamples=1e4 ) {
-#         require(bbmle)
+#         requireNamespace(bbmle)
 #         
 #         if ( is.null(nobs) ) {
 #             stop( "Must specify number of observations (nobs)." )

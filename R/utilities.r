@@ -2,6 +2,23 @@
 
 # various utility functions
 
+# concat
+concat <- function( ... ) {
+    paste( ... , collapse="" , sep="" )
+}
+
+# rrformat
+# row-by-row matrix formatting function
+rrformat <- function( matrix , digits=2 , width=7 ) {
+    if ( length(digits)==1 ) digits <- rep(digits,nrow(matrix))
+    result <- matrix
+    for ( i in 1:nrow(matrix) ) {
+        result[i,] <- format( round(matrix[i,],digits[i]) , width=width )
+    }
+    result
+}
+
+
 # set help to html
 htmlhelp <- function() options(help_type="html")
 
@@ -95,7 +112,6 @@ chainmode <- function( chain , ... ) {
 # requires coda library
 PIprimes <- c(0.67,0.89,0.97) # my snarky prime valued percentiles
 HPDI <- function( samples , prob=0.89 ) {
-    # require(coda)
     coerce.list <- c( "numeric" , "matrix" , "data.frame" , "integer" , "array" )
     if ( inherits(samples, coerce.list) ) {
         # single chain for single variable
@@ -196,7 +212,6 @@ replicate2 <- function (n, expr, interval=0.1, simplify = "array") {
 
 # multi-core replicate
 mcreplicate <- function (n, expr, refresh = 0.1, mc.cores=2 ) {
-    #require(parallel)
     show_progress <- function(i) {
         intervaln <- floor(n * refresh)
         if (floor(i/intervaln) == i/intervaln) {

@@ -24,7 +24,6 @@ stan_total_samples <- function(stanfit) {
 
 setMethod("extract.samples","map2stan",
 function(object,n,...) {
-    #require(rstan)
     p <- rstan::extract(object@stanfit,...)
     # get rid of dev and lp__
     p[['dev']] <- NULL
@@ -50,7 +49,6 @@ function(object,n,...) {
 
 setMethod("extract.samples","stanfit",
 function(object,...) {
-    #require(rstan)
     p <- rstan::extract(object,...)
     # get rid of dev and lp__
     #p[['dev']] <- NULL
@@ -227,7 +225,6 @@ resample_old <- function( object , iter=1e4 , warmup=1000 , chains=1 , cores=1 ,
         fit <- stan( fit=object@stanfit , data=data , init=init , pars=object@pars , iter=iter , warmup=warmup , chains=chains , ... )
     } else {
         init[[1]] <- object@start
-        #require(parallel)
         sys <- .Platform$OS.type
         if ( missing(rng_seed) ) rng_seed <- sample( 1:1e5 , 1 )
         if ( sys=='unix' ) {
@@ -247,7 +244,6 @@ resample_old <- function( object , iter=1e4 , warmup=1000 , chains=1 , cores=1 ,
             env0 <- list( fit=fit, data=data, pars=pars, rng_seed=rng_seed, iter=iter, warmup=warmup )
             clusterExport(cl = CL, c("iter","warmup","data", "fit", "pars", "rng_seed"), as.environment(env0))
             sflist <- parLapply(CL, 1:chains, fun = function(cid) {
-                #require(rstan)
                 stan(fit = fit, data = data, pars = pars, chains = 1, 
                   iter = iter, warmup = warmup, seed = rng_seed, 
                   chain_id = cid)
@@ -306,13 +302,11 @@ resample_old <- function( object , iter=1e4 , warmup=1000 , chains=1 , cores=1 ,
 }
 
 setMethod("plot" , "map2stan" , function(x,y,...) {
-    #require(rstan)
     #rstan::traceplot( x@stanfit , ask=TRUE , pars=names(x@start) , ... )
     tracerplot(x,...)
 })
 
 setMethod("pairs" , "map2stan" , function(x, n=500 , alpha=0.7 , cex=0.7 , pch=16 , adj=1 , pars , ...) {
-    #require(rstan)
     if ( missing(pars) )
         posterior <- extract.samples(x)
     else
@@ -444,7 +438,7 @@ tracerplot <- function( object , pars , col=rethink_palette , alpha=1 , bg=col.a
 }
 
 stanergy <- function( x , colscheme="blue" , binwidth=NULL , merge_chains=FALSE ) {
-    library(bayesplot)
+    requireNamespace(bayesplot)
     if ( class(x)=="map2stan" ) x <- x@stanfit
     if ( class(x)!="stanfit" ) stop("needs a stanfit or map2stan object")
     np <- nuts_params(x)
@@ -454,7 +448,7 @@ stanergy <- function( x , colscheme="blue" , binwidth=NULL , merge_chains=FALSE 
 
 # function to do mcmc_parcoord to help find divergences
 divergence_tracker <- function( x , no_lp=TRUE , pars , ... ) {
-    require(bayesplot)
+    requireNamespace(bayesplot)
     if ( class(x)=="map2stan" ) x <- x@stanfit
     np <- nuts_params(x)
     draws <- as.array(x)

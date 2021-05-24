@@ -3,7 +3,7 @@
 # write model code as character vector to file, so cmdstan_model can read it
 cmdstanr_model_write <- function( the_model ) {
         # make temp name from model code md5 hash
-        require( digest , quietly=TRUE )
+        requireNamespace( digest , quietly=TRUE )
         file_patt <- file.path( tempdir() , concat("rt_cmdstanr_",digest(the_model,"md5")) )
         #file <- tempfile("ulam_cmdstanr",fileext=".stan")
         file_stan <- concat( file_patt , ".stan" )
@@ -22,7 +22,7 @@ cstan <- function( file , model_code , data=list() , chains=1 , cores=1 , iter=1
         file <- cmdstanr_model_write( model_code )
     }
 
-    require(cmdstanr,quietly=TRUE)
+    requireNamespace(cmdstanr,quietly=TRUE)
     mod <- cmdstan_model( file , compile=TRUE , cpp_options=cpp_options )
 
     if ( missing(warmup) ) {

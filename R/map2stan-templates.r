@@ -2,10 +2,6 @@
 ########################################
 # distribution function templates
 
-concat <- function( ... ) {
-    paste( ... , collapse="" , sep="" )
-}
-
 map2stan.templates <- list(
     Gaussian = list(
         name = "Gaussian",

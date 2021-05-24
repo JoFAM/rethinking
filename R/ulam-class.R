@@ -51,7 +51,6 @@ function( object , depth=1 , pars , prob=0.89 , digits=2 , sort=NULL , decreasin
 # so need to trim what is returned using object@pars
 setMethod("extract.samples","ulam",
 function(object,n,clean=TRUE,pars,...) {
-    #require(rstan)
     if (missing(pars)) pars <- object@pars
     p <- rstan::extract(object@stanfit,pars=pars,...)
     # get rid of dev and lp__
@@ -166,7 +165,6 @@ setMethod("summary", "ulam", function(object){
 })
 
 setMethod("pairs" , "ulam" , function(x, n=200 , alpha=0.7 , cex=0.7 , pch=16 , adj=1 , pars , ...) {
-    #require(rstan)
     if ( missing(pars) )
         posterior <- extract.samples(x)
     else

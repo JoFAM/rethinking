@@ -18,6 +18,10 @@ divergent <- function( fit , warmup=FALSE ) {
 #
 # [1] "mean"    "se_mean" "sd"      "2.5%"    "25%"     "50%"     "75%"    
 # [8] "97.5%"   "n_eff"   "Rhat" 
+
+# TO DO: Check where this function is actually used. 
+# It's not documented, and seems used neither in the book 
+# nor in the package.
 dashboard <- function( fit , warmup=FALSE , plot=TRUE , trank=TRUE ) {
     if ( class(fit) %in% c("map2stan","ulam") ) fit <- fit@stanfit
     x <- rstan::get_sampler_params(fit)

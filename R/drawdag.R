@@ -1,7 +1,7 @@
 # my DAG drawing function to extend dagitty plot method
 
 drawdag <- function( x , col_arrow="black" , col_segment="black" , col_labels="black" , cex=1 , lwd=1.5 , goodarrow=TRUE , xlim , ylim , shapes , col_shapes , radius=3.5 , add=FALSE , xkcd=FALSE , latent_mark="c" , ... ){ 
-    require(dagitty)
+    requireNamespace(dagitty)
 
     # check for list of DAGs
     if ( class(x)=="list" ) {
@@ -131,7 +131,7 @@ drawdag <- function( x , col_arrow="black" , col_segment="black" , col_labels="b
     }
 
     if ( goodarrow ) {
-        #require(shape)
+        
         shape::Arrows( ax1[directed], -ay1[directed], 
             ax2[directed], -ay2[directed], arr.length=0.2 , arr.width=arr.width, col=col_arrow , lwd=lwd , arr.adj=arr.adj , arr.type=arr.type )
     } else
@@ -185,7 +185,7 @@ dag_arc <- function (x1, y1, x2, y2, xm, ym, col = "gray", length = 0.1,
     nr <- length(res$x)
     if (code >= 3) {
         if ( goodarrow ) {
-            #require(shape)
+            
             shape::Arrows( res$x[4], res$y[4], res$x[1], res$y[1], arr.length=0.2 , arr.width=0.15, col=col , lwd=lwd , arr.adj=1 , arr.type="curved" )
         } else
             arrows(res$x[1], res$y[1], res$x[4], res$y[4], col = col, 
@@ -193,7 +193,7 @@ dag_arc <- function (x1, y1, x2, y2, xm, ym, col = "gray", length = 0.1,
     }
     if (code >= 2) {
         if ( goodarrow ) {
-            #require(shape)
+            
             shape::Arrows( res$x[nr-3], res$y[nr-3], res$x[nr], res$y[nr], arr.length=0.2 , arr.width=0.15, col=col , lwd=lwd , arr.adj=1 , arr.type="curved" )
         } else
             arrows(res$x[nr - 3], res$y[nr - 3], res$x[nr], res$y[nr], 
@@ -233,57 +233,3 @@ drawopenpaths <- function( x , Z=list() , col_arrow="red" , ... ) {
     }#i
     return(invisible(path_list))
 }
-
-# test code
-if (FALSE) {
-
-plot( NULL , xlim=c(-1,1) , ylim=c(-1,1) )
-circle( 0 , 0 , 1 )
-
-library(rethinking)
-library(dagitty)
-plant_dag <- dagitty( "dag {
-    h0 -> h1
-    f -> h1
-    t -> f
-}")
-coordinates( plant_dag ) <- list( x=c(h0=0,t=2,f=1,h1=1) , y=c(h0=0,t=0,f=1,h1=2) )
-
-drawdag( plant_dag , cex=1.2 , col_labels=c("red","black","red","red") , col_arrow=c("red","black","red") , goodarrow=TRUE )
-
-exdag <- dagitty( "dag {
-    U [unobserved]
-    z -> x -> y
-    x <- U -> y
-}")
-coordinates( exdag ) <- list( x=c(z=0,x=1,y=2,U=1.5) , y=c(z=0,x=0,y=0,U=-1) )
-drawdag( exdag , radius=3.8 )
-
-# drawing paths
-
-g <- dagitty( "dag { 
-    x -> y
-    a -> x
-    b -> y
-    a -> z <- b
-    x [exposure]
-    y [outcome] 
-}" , layout=TRUE )
-
-drawdag( g , col_arrow="gray" )
-
-drawopenpaths( g , col_arrow="black" )
-drawopenpaths( g , Z=list("z") , col_arrow="black" )
-
-# xkcd example
-exdag <- dagitty( "dag {
-    z -> x -> y
-    x <- U -> y
-}")
-coordinates( exdag ) <- list( x=c(z=0,x=1,y=2,U=1.5) , y=c(z=0,x=0,y=0,U=-1) )
-drawdag( exdag , xkcd=TRUE , lwd=1.5 )
-
-
-
-}
-

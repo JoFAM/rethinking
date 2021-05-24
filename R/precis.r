@@ -383,7 +383,6 @@ precisx <- function( model , depth=1 , pars , ci=TRUE , prob=0.89 , corr=FALSE ,
     }
     if ( the.class=="map2stan" | the.class=="stanfit" ) {
         # add n_eff to result
-        #require(rstan)
         if ( the.class=="map2stan" )
             the_summary <- summary( model@stanfit )$summary
         else
@@ -622,13 +621,4 @@ xnobs <- function( model ) {
     result
 }
 
-# row-by-row matrix formatting function
-rrformat <- function( matrix , digits=2 , width=7 ) {
-    if ( length(digits)==1 ) digits <- rep(digits,nrow(matrix))
-    result <- matrix
-    for ( i in 1:nrow(matrix) ) {
-        result[i,] <- format( round(matrix[i,],digits[i]) , width=width )
-    }
-    result
-}
-
+# rrformat moved to utilities

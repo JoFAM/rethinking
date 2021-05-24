@@ -84,24 +84,3 @@ plp <- function( mapfit , prob=0.9 , xlim , postcol="black" , priorcol="darkgray
     invisible(list(priors,post))
     
 }
-
-
-#EXAMPLES/TESTS
-if (FALSE) {
-
-library(rethinking)
-data(chimpanzees)
-d <- chimpanzees
-
-flist4 <- alist(
-    pulled.left ~ dbinom( 1 , p ),
-    logit(p) <- a + b*prosoc.left ,
-    a ~ dnorm(0,1),
-    b ~ dnorm(0,1)
-)
-
-m <- map( flist4 , data=d , start=list(a=0,b=0) )
-
-
-
-}

@@ -1382,7 +1382,7 @@ ulam <- function( flist , data , pars , pars_omit , start , chains=1 , cores=1 ,
 
     cmdstanr_model_write <- function( the_model ) {
         # make temp name from model code md5 hash
-        require( digest , quietly=TRUE )
+        requireNamespace( digest , quietly=TRUE )
         file_patt <- file.path( tempdir() , concat("ulam_cmdstanr_",digest(the_model,"md5")) )
         #file <- tempfile("ulam_cmdstanr",fileext=".stan")
         file_stan <- concat( file_patt , ".stan" )
@@ -1408,7 +1408,7 @@ ulam <- function( flist , data , pars , pars_omit , start , chains=1 , cores=1 ,
                     stanfit <- stan( model_code = model_code , data = data , pars=use_pars , chains=chains , cores=cores , iter=iter , control=control , warmup=warmup , ... )
                 else {
                     # use cmdstanr interface
-                    require( cmdstanr , quietly=TRUE )
+                    requireNamespace( cmdstanr , quietly=TRUE )
                     filex <- cmdstanr_model_write( model_code )
                     mod <- cmdstan_model(
                         stan_file=filex[[1]],
@@ -1435,7 +1435,7 @@ ulam <- function( flist , data , pars , pars_omit , start , chains=1 , cores=1 ,
                 } else {
                     # SAME AS ABOVE FOR NOW - how to referece exe?
                     # use cmdstanr interface
-                    require( cmdstanr , quietly=TRUE )
+                    requireNamespace( cmdstanr , quietly=TRUE )
                     filex <- cmdstanr_model_write( model_code )
                     mod <- cmdstan_model(
                         stan_file=filex[[1]],
