@@ -1,6 +1,19 @@
 rethinking
 ==========
 
+### This Fork
+
+I thoroughly enjoyed the book by McElreath, but when scrolling through the package code, I couldn't help but notice a ton of R CMD check problems. In this fork I try to make the package compliant with CRAN standards without changing the actual functionality. 
+
+R CMD Check is run on the latest R on MacOS, Linux and Windows using Github Actions.
+
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/JoFAM/rethinking/workflows/R-CMD-check/badge.svg)](https://github.com/JoFAM/rethinking/actions)
+<!-- badges: end -->
+
+
+### Original README
+
 This R package accompanies a course and book on Bayesian data analysis: McElreath 2020. Statistical Rethinking, 2nd edition, CRC Press. If you are using it with the first edition of the book, please see the notes at the bottom of this file.
 
 It contains tools for conducting both quick quadratic approximation of the posterior distribution as well as Hamiltonian Monte Carlo (through RStan or cmdstanr - mc-stan.org). Many packages do this. The signature difference of this package is that it forces the user to specify the model as a list of explicit distributional assumptions. This is more tedious than typical formula-based tools, but it is also much more flexible and powerful and---most important---useful for teaching and learning. When students have to write out every detail of the model, they actually learn the model.
