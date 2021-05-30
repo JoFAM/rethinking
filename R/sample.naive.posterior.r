@@ -1,12 +1,64 @@
-# sample naive posterior
-
-# here for historical reasons - preserved for backwards compatibility with old scripts
-
-# convenience wrapper for sampling from quadratic approx posterior into a data frame
-# also capable of averaging over models, if given a list() as first argument
+#' Samples from quadratic posterior densities of models 
+#' 
+#' Samples from the posterior density of a fit model or models, assuming multivariate normality. This is a legacy function and is no longer supported nor unit tested. 
+#' 
+#' This function provides a way to draw parameter values from a multivariate normal posterior density, estimated from the maximum a posterieri (MAP) estimates and variance-covariance (\code{vcov}) of a fit model or models.
+#' 
+#' When passing a single fit model object, the function returns a data frame in which each row is a sample and each column is a parameter.
+#' 
+#' When passing a list of fit model objects, the function used to return a data frame containing samples from the joint posterior across model families. The fraction of rows drawn from a specific model family is determined by the \code{model.weights} parameter. BIC, AIC, or AICc are used to compute approximate predictive probabilities of each model family, and the total samples \code{n} is proportioned according to these estimates. The user can also supply a numeric vector of model weights, computed by any method. This vector should sum to 1.
+#' 
+#' @param model a fit model object.
+#' @param n number of samples to draw from joint posterior
+#' @param model.weights If passing a list of models, method for computing posterior probability of each model family. Can be "AIC","AICc","BIC" or a vector of numeric weights.
+#' @param nobs Number of observations used to fit model or all models in list. Sometimes needed for \code{model.weights} values, like \code{AICc}.
+#' @param add.names Adds a column of model names, when passing a list of models
+#' @param fill.na Fills missing values with 0, by default, for model families that do not contain a given parameter. Useful for linear models. Hazardous for non-linear ones.
+#' @param verbose If \code{TRUE}, prints various debugging information.
+#' @param ... arguments passed to other functions.
+#' 
+#' @section WARNING:
+#' This function is deprecated, and doesn't work any longer as described. Specifically for a list of functions, it doesn't return a sensible result.
+#' 
+#' @return A data frame with samples for every parameter.
+#' 
+#' @author Richard McElereath
+#' 
+#' @seealso \code{\link{mvrnorm}} for sampling from a multivariate normal distribution, 
+#' \code{\link{extract.samples}} for collecting posterior samples from a \code{\link{quap}} \code{\link{map}} or \code{\link{map2stan}} model.
+#' 
+#' @examples 
+#' 
+#' data(cars)
+#' flist <- alist(
+#'     dist ~ dnorm( mu , sigma ) ,
+#'     mu <- a+b*speed ,
+#'     c(a,b) ~ dnorm(0,1) , 
+#'     sigma ~ dexp(1)
+#' )
+#' fit <- quap( flist , start=list(a=40,b=0.1,sigma=20) , 
+#'             data=cars )
+#' extract.samples(fit)
+#' 
+#' \dontrun{
+#' # The old way, giving a warning now
+#' sample.naive.posterior(fit)
+#' }
+#' 
+#' @export
 sample.naive.posterior <- function( ... ) sample.qa.posterior( ... )
 
+# TO DO: Check whether this is still necessary. It doesn't work
+# as advertised for lists of functions any longer, and there's
+# no AICc to be found anywhere.
+
+#' @rdname sample.naive.posterior
+#' @export
 sample.qa.posterior <- function( model , n=10000 , clean.names=TRUE , model.weights="AICc" , nobs=0 , add.names=FALSE , fill.na=0 , verbose=FALSE ) {
+    # Add warning about legacy
+    
+    warning("This is a legacy function. ")
+    
     # need own BIC, as one in stats doesn't allow nobs
     getdf <- function(x) {
         if (!is.null(df <- attr(x, "df"))) 
