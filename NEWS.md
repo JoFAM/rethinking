@@ -8,6 +8,8 @@ None
 
 * Cleanup of internal code.
 * Extended the help pages and examples.
+* `coerce_index` now does a few sanity checks.
+* `check_index` now returns an invisible logical value indicating whether the check was OK or not. A small bug was fixed (the difference between the integer labels was checked incorrectly.)
 
 ### New features
 

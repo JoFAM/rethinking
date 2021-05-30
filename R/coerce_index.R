@@ -84,6 +84,9 @@ coerce_index <- function( ... ){
   }
   return(out)
 }
+# JM: I reworked this function to take advantage of the 
+# new way R deals with factors, and to get rid of redundant
+# operations. I also added some sanity checks.
 
 #' @rdname coerce_index
 #' @aliases check_index
@@ -107,3 +110,9 @@ check_index <- function( x, verbose = TRUE ) {
   
   return(invisible( maxok && diffok ))
 }
+
+# JM: I made this function actually return something, so
+# it can be used inside other functions, not just as a 
+# console check. I also corrected a mistake in the checks
+# on the diffs.
+
