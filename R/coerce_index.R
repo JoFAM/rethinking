@@ -14,8 +14,11 @@
 #' 
 #' @param ... a comma-separated list of variables. See details.
 #' @param x a vector of integers to check for contiguity
+#' @param verbose a logical value indicating whether \code{check_index} should show the analysis. 
 #' 
 #' @return For \code{coerce_index}, the result is either a single vector of integers (if the input was a single vector) or rather a list of vectors of integers (if the input was a list of vectors).
+#' 
+#' For \code{check_index} a logical value indicating whether or not the vector fulfills the conditions. The function returns invisibly.
 #' 
 #' @author Richard McElreath with adaptations by Joris Meys
 #' 
@@ -66,6 +69,11 @@ coerce_index <- function( ... ){
       vnames <- names(L)
     }
     # PROCESS ALL 
+    # protect from mixing factors and character vecs
+    fid <- sapply(L, is.factor)
+    if(any(fid)){
+      L[fid] <- lapply(L[fid],as.character)
+    }
     # works with new factor combination in R4.0
     tmp <- as.integer(as.factor(unlist(L)))
     out <- vector("list", nfac)
@@ -80,14 +88,22 @@ coerce_index <- function( ... ){
 #' @rdname coerce_index
 #' @aliases check_index
 #' @export
-check_index <- function( x ) {
+check_index <- function( x, verbose = TRUE ) {
   y <- sort(unique(x))
   n <- length(y)
-  message( concat( "Length: ",n ) )
-  message( concat( "Range: ",min(y)," / ",max(y) ) )
-  if ( max(y) != n ) message( "Maximum index different than number of unique values" )
-  diffs <- sapply( 2:n , function(i) y[i] - y[i-1] )
-  if ( any(diffs!=1) ) message( "At least one gap in consecutive values" )
   
-  return(invisible(any(diffs!=1) || max(y) != n ))
+  if(verbose){
+    message( concat( "Length: ",n ) )
+    message( concat( "Range: ",min(y)," / ",max(y) ) )
+  }
+  diffs <- sapply( 2:n , function(i) y[i] - y[i-1] )
+  
+  maxok <- max(y) == n
+  diffok <- all(diffs == 1)
+  
+  if ( verbose && !maxok ) message( "Maximum index different than number of unique values" )
+  
+  if ( verbose && !diffok ) message( "At least one gap in consecutive values" )
+  
+  return(invisible( maxok && diffok ))
 }

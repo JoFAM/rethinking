@@ -7,15 +7,19 @@
 \usage{
 coerce_index(...)
 
-check_index(x)
+check_index(x, verbose = TRUE)
 }
 \arguments{
 \item{...}{a comma-separated list of variables. See details.}
 
 \item{x}{a vector of integers to check for contiguity}
+
+\item{verbose}{a logical value indicating whether \code{check_index} should show the analysis.}
 }
 \value{
 For \code{coerce_index}, the result is either a single vector of integers (if the input was a single vector) or rather a list of vectors of integers (if the input was a list of vectors).
+
+For \code{check_index} a logical value indicating whether or not the vector fulfills the conditions. The function returns invisibly.
 }
 \description{
 These functions assist with building (\code{coerce_index}) and checking (\code{check_index}) integer index variables of the kind needed to define varying effect models.
